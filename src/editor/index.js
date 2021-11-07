@@ -13,9 +13,13 @@ function UnstyledBlockRender(props){
 function BlockBlockRender(props){
      return(<div className='sienna-editor-block-block'><EditorBlock {...props} /></div>)
 }
+function BlockCodeRender(props){
+     return(<div className='sienna-editor-block-code'><EditorBlock {...props} /></div>)
+}
 
 function BlockRenderer (contentBlock){
      const ty = contentBlock.getType();
+     console.log(ty);
      switch(ty){
           case 'header-one':{
                return {
@@ -43,6 +47,14 @@ function BlockRenderer (contentBlock){
                          children:contentBlock.getText()
                     }
                }
+          case 'code':
+               return {
+                    component:BlockCodeRender,
+                    editable:true,
+                    props:{
+                         children:contentBlock.getText()
+                    }
+               }
           default:{
 
           }
@@ -58,12 +70,32 @@ export default class SiennaEditor extends react.Component   {
           super(props);
           const blocksFromHTML = convertFromHTML(template_page_code);
           const state = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks,blocksFromHTML.entityMap,);
-          this.state = {editorState: EditorState.createWithContent(state)};
+          this.state = {
+               editorState: EditorState.createWithContent(state),
+               textEditorVisi: false,
+          }
           this.editorStateChage = this.editorStateChage.bind(this);
-
+          this.setTextEditorVisi = this.setTextEditorVisi.bind(this);
+          this.blurHandle = this.blurHandle.bind(this);
      }
 
-     editorStateChage(edtState){
+     setTextEditorVisi(visi){this.setState({textEditorVisi: visi});}
+
+     textEditorVisi(edtState){
+          const selc = edtState.getSelection();
+          if(selc.getEndOffset() > selc.getStartOffset()){
+               this.setTextEditorVisi(true);
+               return;
+          }
+          this.setTextEditorVisi(false);
+     }
+
+     blurHandle(){
+          this.setTextEditorVisi(false);
+     }
+
+     editorStateChage(edtState){   
+          this.textEditorVisi(edtState);
           this.setState({editorState: edtState});
      }
 
@@ -78,8 +110,9 @@ export default class SiennaEditor extends react.Component   {
             editorState={this.state.editorState} 
             onChange={this.editorStateChage} 
             blockRendererFn={BlockRenderer}
+            onBlur={this.blurHandle}
             />
-          <TextEditorMenu visi={true} editorState={this.state.editorState}/>
+          <TextEditorMenu visi={this.state.textEditorVisi} editorStateChage={this.editorStateChage} editorState={this.state.editorState}/>
           </div>
           );
         }

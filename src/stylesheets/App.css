@@ -111,3 +111,6 @@ body::-webkit-scrollbar {
      font-style: italic;
      outline: none;
 }
+.sienna-editor-block-code{
+     background-color: red;
+}

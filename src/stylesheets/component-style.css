@@ -451,6 +451,11 @@ color: inherit;
          align-items: center;
     }
     
+    .comp-text-editor-menu-button-active{
+     background-color: #5A626F;    
+     color: #fff;
+    }
+
     .comp-text-editor-menu-button:hover{
          background-color: #5A626F;
          color: #fff;

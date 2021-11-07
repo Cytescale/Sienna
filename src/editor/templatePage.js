@@ -18,5 +18,6 @@ hosted <u>environment</u>.<b>The hosted files would be SEO</b>.
 <li>This is a item3</li>
 </ul>
 
+
 `;
 export default template_page_code;
