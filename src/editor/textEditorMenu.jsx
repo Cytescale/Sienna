@@ -2,7 +2,7 @@ import React,{useState,useEffect} from "react";
 import { RichUtils } from "draft-js";
 
 const TextEditorMenu = (props)=>{
-     const [visi,setVisi] = useState(props.visi);
+     const [visi,setVisi] = useState(false);
      const [bld,setbld] = useState(false);
      const [itl,setitl] = useState(false);
      const [uld,setuld] = useState(false);

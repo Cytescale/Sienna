@@ -19,6 +19,8 @@ font-family: Open+Sans;
           user-select: none;
 overflow-x: hidden;
 
+--block-space: 16px;
+--left-padding: 22px;
 }
 
 code {
@@ -33,7 +35,7 @@ code {
      align-items: center;
      min-width: 100%;
      min-height: 100%;
-     padding: 24px;
+
      overflow-x: hidden;
 }
 
@@ -54,8 +56,9 @@ body::-webkit-scrollbar {
 
 .sienna-editor-main-cont{
      /* border: 1px solid red; */
-     max-width: 45%;
-     min-width: 500px;
+     /* max-width: 45%; */
+     /* min-width: 500px; */
+     width: 100%;
      max-height: 100%;
      min-height: 500px;
      color: #FCFDFF;
@@ -86,18 +89,109 @@ body::-webkit-scrollbar {
 
 }
 
+.sienna-editor-block-wrapper{
+     width: 45%;
+     min-width: 500px;
+     max-width: 45%;
+     display: flex;
+     align-items: center;
+     justify-content: start;
+     position: relative;
+     /* background-color: red; */
+}
+
+.sienna-editor-master-wrapper{
+     width: 100%;
+     height: auto;
+     margin: 0;
+     margin-top: var(--block-space);
+     margin-bottom: var(--block-space);
+     padding: 0;
+     display: flex;
+     justify-content: center;
+     /* background-color: green; */
+}
+
+.sienna-editor-block-wrapper-butt-cont{
+     position: absolute;
+     margin-left: -42px;
+     width: 22px;
+     height: 100%;
+     padding-right: 12px;
+     display: flex;
+     align-items: center;
+     display: none;
+     border-right: 3px solid rgba(0,0,0,0);
+}
+
+.sienna-editor-block-wrapper-butt-visi{
+     display: block;
+     border-right: 3px solid #717883;
+}
+
+.sienna-editor-block-wrapper-butt-hidden{
+     display: none;
+}
+
+.sienna-editor-block-wrapper-butt{
+     width: 100%;
+     height: 22px;
+     margin-right: 12px;
+     border-radius: 4px;
+     border:none;
+     background-color: rgba(0, 0, 0, 0);
+     cursor: pointer;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     padding: 0;
+     margin-bottom: 12px;
+}
+
+.sienna-editor-master-wrapper-hover{
+
+}
+
+.sienna-editor-block-wrapper-butt:hover{
+     background-color: #363D48;
+}
+
+.sienna-editor-block-wrapper-butt-ico{
+     width: 22px;
+     height: 22px;
+     color: #fff;
+}
+
 .sienna-editor-unstyle-block{
      padding:4px;
-     margin-top: 12px;
-     margin-bottom: 12px;
 }
 
 .sienna-editor-header-1-block{
      font-size: 26px;
-     font-weight: 700;
-     margin-top: 12px;
-     margin-bottom: 12px;
+     font-weight: 600;
      outline: none;
+}
+
+.sienna-editor-header-2-block{
+     font-size: 22px;
+     font-weight: 600;
+     outline: none;
+}
+
+.sienna-editor-UOL-block{
+     margin: 0;
+     padding: 0;
+     left: 0;
+     margin-top: 0px;
+     display: flex;
+     align-items: center;
+     margin-left: var(--left-padding);
+     padding-left: var(--left-padding);
+}
+
+.sienna-editor-UOL-block-cir{
+     /* margin-right: 12px; */
+     display: list-item;
 }
 
 .sienna-editor-block-block{
@@ -106,9 +200,9 @@ body::-webkit-scrollbar {
      padding-right: 5px;
      padding-top: 3px;
      padding-bottom: 3px;
-     margin-top: 12px;
-     margin-bottom: 12px;
      font-style: italic;
+     margin-left: var(--left-padding);
+     left: 0;
      outline: none;
 }
 .sienna-editor-block-code{
