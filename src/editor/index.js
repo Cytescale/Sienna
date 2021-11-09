@@ -31,7 +31,7 @@ function BlockWrapper(props) {
           visi ? "sienna-editor-master-wrapper-hover" : ""
         }`}
       >
-        <div
+        {/* <div
           className={`sienna-editor-block-wrapper-butt-cont  ${
             visi
               ? "sienna-editor-block-wrapper-butt-visi"
@@ -50,19 +50,7 @@ function BlockWrapper(props) {
               <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z" />
             </svg>
           </button>
-          <button className={`sienna-editor-block-wrapper-butt`}>
-            <svg
-              className="sienna-editor-block-wrapper-butt-ico"
-              height="24px"
-              viewBox="0 0 24 24"
-              width="24px"
-              fill="currentColor"
-            >
-              <path d="M0 0h24v24H0V0z" fill="none" />
-              <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-            </svg>
-          </button>
-        </div>
+        </div> */}
         {props.children}
       </div>
     </div>
@@ -226,28 +214,23 @@ export default class SiennaEditor extends react.Component {
     this.setState({ textEditorVisi: visi });
   }
 
-  textEditorVisi(edtState) {
-    const selc = edtState.getSelection();
-    if (selc.getEndOffset() > selc.getStartOffset()) {
-      this.setTextEditorVisi(true);
-      return;
-    }
-    this.setTextEditorVisi(false);
-  }
-
   blurHandle() {
-    this.setTextEditorVisi(false);
+    
   }
 
   editorStateChage(edtState) {
-    this.textEditorVisi(edtState);
     this.setState({ editorState: edtState });
   }
 
   render() {
     return (
       <div className="sienna-editor-main-cont">
-        {/* <div contentEditable className='sienna-editor-page-title-main-cont'>Page Title</div> */}
+          <div className={`sienna-editor-master-wrapper`}>
+            <div className={`sienna-editor-block-wrapper`}>
+            <div contentEditable={true} className='sienna-editor-page-title-main-cont'>Page Title</div>  
+            <div contentEditable={true} className='sienna-editor-page-sub-title-main-cont'>Page sub title with a moto</div>  
+          </div>
+        </div>
         <Editor
           readOnly={false}
           placeholder="Type anything here"
@@ -259,7 +242,7 @@ export default class SiennaEditor extends react.Component {
           onBlur={this.blurHandle}
         />
         <TextEditorMenu
-          visi={this.state.textEditorVisi}
+          visi={true}
           editorStateChage={this.editorStateChage}
           editorState={this.state.editorState}
         />

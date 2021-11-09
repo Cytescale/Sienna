@@ -396,6 +396,39 @@ color: inherit;
          background-color: #3E6A66
     }
     
+    .comp-text-editor-block-type-butt-togg{
+     
+    }
+
+    .comp-text-editor-block-type-butt{
+         border-radius: 4px;
+         border-style: none;
+         background-color: #5A626F;
+         padding: 3px;
+         padding-left: 7px;
+         padding-right: 7px;
+         width: 120px;
+         color: #fff;
+         font-weight: 500;
+         display: flex;
+         font-size: 14px;
+         justify-content: center;
+         align-items: center;
+         margin-right: 8px;
+    }
+
+
+    .comp-text-editor-block-type-butt:hover{
+         background-color: #4A5260;
+    }
+    
+     .comp-text-editor-block-type-butt-togg-ico{
+          width: 15px;
+          height: 15px;
+          color: inherit;
+          margin-left: 5px;
+     }
+
     .comp-text-editor-menu-main-outer-cont{
          position: fixed;
          width: 100%;
@@ -403,25 +436,36 @@ color: inherit;
          justify-content: center;
          align-items: center;
          display: flex;
-         bottom: 0;
+         top: 22px;
+         z-index: 200;
          left: 0;
          right: 0;
+    }
+    
+    .comp-text-editor-div-cont{
+         height: 27px;
+         margin-left: 3px;
+         margin-right: 3px;
+         width: 1px;
+         border-radius: 32px;
+         background-color: #5A626F;
     }
     
     .comp-text-editor-menu-main-cont{
          position: relative;
          z-index: 200;
-         /* width: 40%; */
-         height: 52px;
+         /* width: 45%; */
+         height: 42px;
          padding-left: 32px;
          padding-right: 32px;
          display: inline-flex;
-         justify-content: center;
+         justify-content: start;
          align-items: center;
          background-color: #363D48;
          border-radius: 5px;
          margin-bottom: 12px;
          box-shadow: 0px 8px 12px rgba(0,0,0,0.25);
+         pointer-events: all;
     }
     
     .comp-text-editor-menu-button-cont{
@@ -450,12 +494,12 @@ color: inherit;
     }
     
     .comp-text-editor-menu-button-active{
-     background-color: #5A626F;    
+     /* background-color: #5A626F;     */
      color: #fff;
     }
 
     .comp-text-editor-menu-button:hover{
-         background-color: #5A626F;
+         /* background-color: #5A626F; */
          color: #fff;
     }
     

@@ -19,7 +19,7 @@ font-family: Open+Sans;
           user-select: none;
 overflow-x: hidden;
 
---block-space: 16px;
+--block-space: 13px;
 --left-padding: 22px;
 }
 
@@ -35,7 +35,6 @@ code {
      align-items: center;
      min-width: 100%;
      min-height: 100%;
-
      overflow-x: hidden;
 }
 
@@ -88,15 +87,25 @@ body::-webkit-scrollbar {
      border: none;
 
 }
+.sienna-editor-page-sub-title-main-cont{
+     font-size: 17px;
+     font-weight: 400;
+     color: #717883;
+     outline: none;
+     border: none;
+
+}
 
 .sienna-editor-block-wrapper{
      width: 45%;
      min-width: 500px;
      max-width: 45%;
-     display: flex;
+     /* display: flex;
      align-items: center;
-     justify-content: start;
+     justify-content: start; */
+     
      position: relative;
+     overflow: visible;
      /* background-color: red; */
 }
 
@@ -107,21 +116,24 @@ body::-webkit-scrollbar {
      margin-top: var(--block-space);
      margin-bottom: var(--block-space);
      padding: 0;
-     display: flex;
+     display: inline-flex;
      justify-content: center;
+     overflow: visible;
+     caret-color: #fff;
      /* background-color: green; */
 }
 
 .sienna-editor-block-wrapper-butt-cont{
      position: absolute;
      margin-left: -42px;
-     width: 22px;
+     width: 32px;
      height: 100%;
      padding-right: 12px;
      display: flex;
      align-items: center;
      display: none;
      border-right: 3px solid rgba(0,0,0,0);
+     
 }
 
 .sienna-editor-block-wrapper-butt-visi{
@@ -134,7 +146,7 @@ body::-webkit-scrollbar {
 }
 
 .sienna-editor-block-wrapper-butt{
-     width: 100%;
+     width: 22px;
      height: 22px;
      margin-right: 12px;
      border-radius: 4px;
@@ -162,18 +174,21 @@ body::-webkit-scrollbar {
      color: #fff;
 }
 
+
 .sienna-editor-unstyle-block{
      padding:4px;
+     font-size: 16px;
+     
 }
 
 .sienna-editor-header-1-block{
-     font-size: 26px;
+     font-size: 28px;
      font-weight: 600;
      outline: none;
 }
 
 .sienna-editor-header-2-block{
-     font-size: 22px;
+     font-size: 24px;
      font-weight: 600;
      outline: none;
 }
@@ -207,4 +222,30 @@ body::-webkit-scrollbar {
 }
 .sienna-editor-block-code{
      background-color: red;
+}
+
+.dropdown-menu{
+     padding: 0;
+     height: fit-content;
+     border-radius: 7px;
+     margin-top: 7px;
+     background-color: #363D48;
+}
+
+.list-unstyled{
+     font-size: 14px;
+     margin-top: 4px;     
+}
+.list-unstyled-ico
+{
+     margin-right: 7px;
+     height: 14px;
+     width: 14px;
+     color: inherit;
+}
+
+.dropdown-item{
+     display: flex;
+     padding-left: 12px;
+     align-items: center;
 }
