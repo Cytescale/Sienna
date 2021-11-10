@@ -14,7 +14,9 @@ import {
   KeyBindingUtil,
   EditorChangeType,
   Modifier,
-  AtomicBlockUtils
+  AtomicBlockUtils,
+  removeTextWithStrategy,
+  SelectionState
 } from "draft-js";
 import TextEditorMenu from "./textEditorMenu";
 import Immutable from "immutable";
@@ -162,7 +164,7 @@ function AtomicBlockRender(props) {
       return (
         <BlockWrapper>
           <div className="sienna-editor-divider-block-cont"
-          onClick={handleDividerClick}
+          onClick={handleDividerClick}contentEditable={false}
           ><div className='sienna-editor-divider-block'/></div>
         </BlockWrapper>
       );
@@ -260,7 +262,7 @@ function BlockRenderer(contentBlock,editorState,editorStateChage) {
 
 const insertDivider = (editorState) => {
   const contentState = editorState.getCurrentContent();
-  const contentStateWithEntity = contentState.createEntity("divider","IMMUTABLE");
+  const contentStateWithEntity = contentState.createEntity("divider","IMMUTABLE",{});
   const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
   const newEditorState = EditorState.set(editorState, {currentContent: contentStateWithEntity});
   return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, " ");
@@ -282,7 +284,16 @@ const toContinueBlocks=[
   "unordered-list-item",
 ];
 
+const HeaderBlocks = [
+  'header-one',
+  'header-two',
+  'blockquote',
+  'unordered-list-item',
+  'ordered-list-item'
+]
+
 const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(blockRenderMap);
+
 
 
 export default class SiennaEditor extends react.Component {
@@ -322,9 +333,59 @@ export default class SiennaEditor extends react.Component {
     return getDefaultKeyBinding(e);
    
   }
+   getUpperInsertableBlock = (conState,blockKey)=>{
+      var blockBefore = conState.getBlockBefore(blockKey);  
+      while(blockBefore){
+        if(blockBefore){
+          try{
+            const ent = conState.getEntity(blockBefore.getEntityAt(0)); 
+            if(!ent){break;}
+          }
+          catch(e){break;}
+          blockBefore = conState.getBlockBefore(blockBefore.getKey());
+        }else{break;}
+      }  
+      return blockBefore;
+   }
   
    handleKeyCommand = (command)=>{
-    console.log(command);
+    if(command==='backspace'){
+      const edtrState = this.state.editorState;
+      const currSelec = edtrState.getSelection();
+      if(currSelec.isCollapsed() && currSelec.getFocusOffset()===0){
+        const contState = edtrState.getCurrentContent();
+        const blockKey = currSelec.getFocusKey();
+        const block = contState.getBlockForKey(blockKey);
+        if(HeaderBlocks.includes(block.getType())){
+          this.editorStateChage(RichUtils.toggleBlockType(edtrState,'unstyled'));
+          return 'handled';
+        }
+        try{
+            const prvBlock = contState.getBlockBefore(blockKey);
+            const ent = contState.getEntity(prvBlock.getEntityAt(0));
+            if(ent){
+              var newState = edtrState;
+              var nsCntSt = newState.getCurrentContent();
+              const insrtBlock = this.getUpperInsertableBlock(contState,blockKey);
+              var newSelec = SelectionState.createEmpty(insrtBlock.key);
+              newSelec = newSelec.set('focusOffset',insrtBlock.getLength());
+              newSelec = newSelec.set('anchorOffset',insrtBlock.getLength());
+              nsCntSt = Modifier.insertText(newState.getCurrentContent(),newSelec,block.getText(),block.getInlineStyleAt(0));
+              newState = EditorState.push(newState,nsCntSt,'insert-text');
+              var toDeleteSelec = SelectionState.createEmpty(blockKey);
+              toDeleteSelec = toDeleteSelec.set('focusOffset',block.getLength());
+              toDeleteSelec = toDeleteSelec.set('anchorKey',prvBlock.getKey());
+              toDeleteSelec = toDeleteSelec.set('anchorOffset',prvBlock.getLength());
+              nsCntSt = Modifier.removeRange(newState.getCurrentContent(),toDeleteSelec,'forward');
+              newState = EditorState.push(newState,nsCntSt,'remove-range');
+              newState = EditorState.forceSelection(newState,newSelec);
+              this.editorStateChage(newState);
+              return 'handled';
+            }
+        }
+        catch(e){console.log(e);}
+      }
+    }
     return 'not-handled';
   }
   
@@ -340,11 +401,10 @@ export default class SiennaEditor extends react.Component {
   const editorState = this.state.editorState;
   const currBlockType = RichUtils.getCurrentBlockType(this.state.editorState);
   const isContinousBlock = toContinueBlocks.indexOf(currBlockType)>-1;
-  const isAtStart = this.state.editorState.getSelection().getFocusOffset()==0;
+  const isAtStart = this.state.editorState.getSelection().getFocusOffset()===0;
   if(e.shiftKey) {
     // const newEditorState = RichUtils.insertSoftNewline(this.state.editorState);
     // if (newEditorState !== this.state.editorState) {this.editorStateChage(newEditorState);}
-    
     this.editorStateChage(insertDivider(this.state.editorState));
   } else {
       const currentContent = editorState.getCurrentContent();
@@ -368,19 +428,12 @@ export default class SiennaEditor extends react.Component {
 
 
 
-  editorStateChage(edtState) {
-    this.setState({ editorState: edtState });
-  }
+  editorStateChage(edtState) {this.setState({ editorState: edtState });}
 
   render() {
     return (
       <div className="sienna-editor-main-cont">
-          <div className={`sienna-editor-master-wrapper`}>
-            <div className={`sienna-editor-block-wrapper`}>
-            <div contentEditable={true} className='sienna-editor-page-title-main-cont'>Page Title</div>  
-            <div contentEditable={true} className='sienna-editor-page-sub-title-main-cont'>Page sub title with a moto</div>  
-          </div>
-        </div>
+         
         <Editor
           readOnly={false}
           placeholder="Type anything here"
