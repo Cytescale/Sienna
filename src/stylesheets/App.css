@@ -19,7 +19,8 @@ font-family: Open+Sans;
           user-select: none;
 overflow-x: hidden;
 
---block-space: 13px;
+--block-margin: 12px;
+--block-space: 3px;
 --left-padding: 22px;
 }
 
@@ -113,9 +114,9 @@ body::-webkit-scrollbar {
      width: 100%;
      height: auto;
      margin: 0;
-     margin-top: var(--block-space);
-     margin-bottom: var(--block-space);
      padding: 0;
+     /* margin-top: var(--block-space);
+     margin-bottom: var(--block-space); */
      display: inline-flex;
      justify-content: center;
      overflow: visible;
@@ -176,24 +177,40 @@ body::-webkit-scrollbar {
 
 
 .sienna-editor-unstyle-block{
-     padding:4px;
+     /* padding:4px; */
      font-size: 16px;
-     
+     line-height: calc(24px + 6px);
 }
 
 .sienna-editor-header-1-block{
      font-size: 28px;
      font-weight: 600;
+     margin-top: var(--block-margin);
+     margin-bottom: var(--block-margin);
      outline: none;
 }
 
 .sienna-editor-header-2-block{
      font-size: 24px;
      font-weight: 600;
+     margin-top: var(--block-margin);
+     margin-bottom: var(--block-margin);
      outline: none;
 }
 
 .sienna-editor-UOL-block{
+     margin: 0;
+     padding: 0;
+     left: 0;
+     display: flex;
+     align-items: center;
+     margin-top: 8px;
+     margin-bottom: 8px;
+     margin-left: var(--left-padding);
+     /* padding-left: var(--left-padding); */
+}
+
+.sienna-editor-OL-block{
      margin: 0;
      padding: 0;
      left: 0;
@@ -202,6 +219,7 @@ body::-webkit-scrollbar {
      align-items: center;
      margin-left: var(--left-padding);
      padding-left: var(--left-padding);
+     counter-reset: pseudoListNumbering;
 }
 
 .sienna-editor-UOL-block-cir{
@@ -209,13 +227,37 @@ body::-webkit-scrollbar {
      display: list-item;
 }
 
+.sienna-editor-OL-block-count{
+     display: list-item;
+    list-style-type: decimal;
+}
+
+.sienna-editor-atomic-block{
+     background-color: red;
+}
+
+.sienna-editor-divider-block-cont{
+     margin-top: var(--block-margin);
+     margin-bottom: var(--block-margin);
+     width: 100%;
+     height: 32px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+}
+
+.sienna-editor-divider-block{
+     height: 1px;
+     width: 100%;
+     border-top: 1px solid #5A626F;
+}
+
 .sienna-editor-block-block{
      border-left: 4px solid #fff;
      padding-left: 12px;
      padding-right: 5px;
-     padding-top: 3px;
-     padding-bottom: 3px;
-     font-style: italic;
+     margin-top: var(--block-margin);
+     margin-bottom: var(--block-margin);
      margin-left: var(--left-padding);
      left: 0;
      outline: none;

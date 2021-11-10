@@ -499,8 +499,16 @@ color: inherit;
     }
 
     .comp-text-editor-menu-button:hover{
-         /* background-color: #5A626F; */
-         color: #fff;
+     /* background-color: #5A626F; */
+     color: #fff;
+}
+    .comp-text-editor-menu-button-disable{
+     color:#4A5260;
+     cursor: default;
+    }
+
+    .comp-text-editor-menu-button-disable:hover{
+     color:#4A5260;
     }
     
     .comp-text-editor-menu-button-ico{

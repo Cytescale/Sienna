@@ -10,9 +10,15 @@ import {
   Draft,
   DefaultDraftBlockRenderMap,
   convertToRaw,
+  getDefaultKeyBinding,
+  KeyBindingUtil,
+  EditorChangeType,
+  Modifier,
+  AtomicBlockUtils
 } from "draft-js";
 import TextEditorMenu from "./textEditorMenu";
 import Immutable from "immutable";
+const {hasCommandModifier} = KeyBindingUtil;
 
 function BlockWrapper(props) {
   const [visi, setVisi] = react.useState(null);
@@ -25,11 +31,16 @@ function BlockWrapper(props) {
       onMouseLeave={() => {
         setVisi(false);
       }}
+    
     >
       <div
         className={`sienna-editor-block-wrapper  ${
           visi ? "sienna-editor-master-wrapper-hover" : ""
         }`}
+        onClick={(e)=>{
+          e.preventDefault();
+          e.stopPropagation();
+      }}
       >
         {/* <div
           className={`sienna-editor-block-wrapper-butt-cont  ${
@@ -57,7 +68,10 @@ function BlockWrapper(props) {
   );
 }
 
+
+
 function Header1BlockRender(props) {
+  
   return (
     <BlockWrapper>
       <div className="sienna-editor-header-1-block">
@@ -98,7 +112,7 @@ function BlockCodeRender(props) {
   return (
     <BlockWrapper>
       <div className="sienna-editor-block-code">
-        <EditorBlock {...props} />
+        <EditorBlock {...props}  />
       </div>
     </BlockWrapper>
   );
@@ -119,7 +133,48 @@ function BlockUOLRender(props) {
   );
 }
 
-function BlockRenderer(contentBlock) {
+function BlockOLRender(props) {
+  return (
+    <BlockWrapper>
+      <div className="sienna-editor-OL-block">
+        <div
+          className="sienna-editor-OL-block-count"
+          contentEditable={false}
+          readOnly
+        />
+        <EditorBlock {...props} />
+      </div>
+    </BlockWrapper>
+  );
+}
+
+function AtomicBlockRender(props) {
+  const type = props.contentState.getEntity(props.block.getEntityAt(0)).type;
+  const data = props.contentState.getEntity(props.block.getEntityAt(0)).getData();
+  
+  const handleDividerClick = (e) => {
+    // props.blockProps.editorStateChage(EditorState.forceSelection(props.blockProps.editorState, props.selection))
+    
+  }
+
+  switch (type) {
+    case 'divider':{
+      return (
+        <BlockWrapper>
+          <div className="sienna-editor-divider-block-cont"
+          onClick={handleDividerClick}
+          ><div className='sienna-editor-divider-block'/></div>
+        </BlockWrapper>
+      );
+    }
+    default:{
+      break;
+    }
+  }
+  
+}
+
+function BlockRenderer(contentBlock,editorState,editorStateChage) {
   const ty = contentBlock.getType();
   // console.log(ty);
   switch (ty) {
@@ -136,6 +191,17 @@ function BlockRenderer(contentBlock) {
     case "header-two": {
       return {
         component: Header2BlockRender,
+        editable: true,
+        children: contentBlock.getText(),
+        props: {
+          children: contentBlock.getText(),
+        },
+      };
+    }
+    case "ordered-list-item": {
+      console.log(contentBlock.getCharacterList());
+      return {
+        component: BlockOLRender,
         editable: true,
         children: contentBlock.getText(),
         props: {
@@ -177,10 +243,28 @@ function BlockRenderer(contentBlock) {
           children: contentBlock.getText(),
         },
       };
+    case "atomic":{
+      return {
+        component: AtomicBlockRender,
+        editable: false,
+        props: {
+          editorState: editorState,
+          editorStateChage:editorStateChage
+        },
+      };
+    }
     default: {
     }
   }
 }
+
+const insertDivider = (editorState) => {
+  const contentState = editorState.getCurrentContent();
+  const contentStateWithEntity = contentState.createEntity("divider","IMMUTABLE");
+  const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+  const newEditorState = EditorState.set(editorState, {currentContent: contentStateWithEntity});
+  return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, " ");
+};
 
 const blockRenderMap = Immutable.Map({
   "header-one": { element: "div" },
@@ -188,10 +272,18 @@ const blockRenderMap = Immutable.Map({
   blockquote: { element: "div" },
   unstyled: { element: "div" },
   "unordered-list-item": { element: "div" },
+  "ordered-list-item": { element: "div" },
+  "atomic": { element: "div" },
   "***": { element: "div" },
 });
 
+const toContinueBlocks=[
+  'ordered-list-item',
+  "unordered-list-item",
+];
+
 const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(blockRenderMap);
+
 
 export default class SiennaEditor extends react.Component {
   constructor(props) {
@@ -208,15 +300,73 @@ export default class SiennaEditor extends react.Component {
     this.editorStateChage = this.editorStateChage.bind(this);
     this.setTextEditorVisi = this.setTextEditorVisi.bind(this);
     this.blurHandle = this.blurHandle.bind(this);
+    this.handleReturnEvent = this.handleReturnEvent.bind(this);
   }
 
   setTextEditorVisi(visi) {
     this.setState({ textEditorVisi: visi });
   }
 
+  focusHandle(){
+    
+  }
+
   blurHandle() {
     
   }
+
+  KeyBinder = (e)=>{
+    if(e.keyCode ===8){
+      
+    }
+    return getDefaultKeyBinding(e);
+   
+  }
+  
+   handleKeyCommand = (command)=>{
+    console.log(command);
+    return 'not-handled';
+  }
+  
+  
+  insertImage = (editorState, base64) => {
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity("image","IMMUTABLE",{ src: base64 });
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(editorState, {currentContent: contentStateWithEntity});
+    return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, " ");
+  };
+ handleReturnEvent(e){
+  const editorState = this.state.editorState;
+  const currBlockType = RichUtils.getCurrentBlockType(this.state.editorState);
+  const isContinousBlock = toContinueBlocks.indexOf(currBlockType)>-1;
+  const isAtStart = this.state.editorState.getSelection().getFocusOffset()==0;
+  if(e.shiftKey) {
+    // const newEditorState = RichUtils.insertSoftNewline(this.state.editorState);
+    // if (newEditorState !== this.state.editorState) {this.editorStateChage(newEditorState);}
+    
+    this.editorStateChage(insertDivider(this.state.editorState));
+  } else {
+      const currentContent = editorState.getCurrentContent();
+      const selection = editorState.getSelection();
+      const textWithEntity = Modifier.splitBlock(currentContent, selection);
+      var nState = EditorState.push(editorState, textWithEntity, "split-block");
+      if(!isContinousBlock && !isAtStart){nState = RichUtils.toggleBlockType(nState, 'unstyled');   }
+      if(isAtStart){
+        const currSelc = nState.getSelection();
+        const befselc = nState.getCurrentContent().getSelectionBefore();
+        nState = EditorState.forceSelection(nState, befselc);
+        nState = RichUtils.toggleBlockType(nState, 'unstyled');       
+        nState =  EditorState.forceSelection(nState,currSelc);
+      }
+      // console.log(nState.getUndoStack());
+      this.editorStateChage(nState);
+  }
+
+  return 'handled';
+  }
+
+
 
   editorStateChage(edtState) {
     this.setState({ editorState: edtState });
@@ -236,10 +386,14 @@ export default class SiennaEditor extends react.Component {
           placeholder="Type anything here"
           className="sienna-editor-root"
           editorState={this.state.editorState}
+          handleKeyCommand={this.handleKeyCommand}
+          handleReturn={this.handleReturnEvent}
+          keyBindingFn={this.KeyBinder}
           onChange={this.editorStateChage}
           blockRenderMap={extendedBlockRenderMap}
-          blockRendererFn={BlockRenderer}
+          blockRendererFn={(contntBlock)=>{return BlockRenderer(contntBlock,this.state.editorState,this.editorStateChage)}}
           onBlur={this.blurHandle}
+          
         />
         <TextEditorMenu
           visi={true}

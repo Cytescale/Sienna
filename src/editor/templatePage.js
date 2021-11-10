@@ -23,5 +23,6 @@ hosted <u>environment</u>.<b>The hosted files would be SEO</b>.
 The files changes would be real-time changes in edit and
 hosted <u>environment</u>.<b>The hosted files would be SEO</b>.
 
+
 `;
 export default template_page_code;
