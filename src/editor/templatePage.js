@@ -1,4 +1,3 @@
-
 const template_page_code = `
 <h1>🚀Primary Idea to Date</h1>
 

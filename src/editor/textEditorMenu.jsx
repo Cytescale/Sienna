@@ -42,16 +42,74 @@ const TextEditorMenu = (props)=>{
      const [stk,setstk] = useState(false);
      const [cde,setcde] = useState(false);
      const [block_type_index,setblock_type_index] = useState(null);
+     const [finX,setfinX] = useState(0);
+     const [finY,setfinY] = useState(0);
      var edtState = props.editorState;
+
+     const  getSelectedBlockElement = () => {
+          var selection = window.getSelection();
+          if (selection.rangeCount == 0) return null;
+          var node = selection.getRangeAt(0).startContainer;
+          do {
+              if (node.getAttribute && node.getAttribute("data-block") == "true")
+                  return node;
+              node = node.parentNode;
+          } while (node != null);
+          return null;
+      };
+  
+     const getDOMPoisition = ()=>{
+          const selcBlock = getSelectedBlockElement();
+          var node = null;
+          var domRect = null;
+          if (selcBlock) {
+              var treeWalker = document.createTreeWalker(
+                  selcBlock,
+                  NodeFilter.SHOW_ELEMENT,
+                  {
+                      acceptNode: function (node) {
+                          return NodeFilter.FILTER_ACCEPT;
+                      },
+                  },
+                  false
+              );
+              node = treeWalker.nextNode();
+              if (node) {
+                  while (node) {
+                      node = treeWalker.nextNode();
+                      if (node == null || !node.className) {
+                          break;
+                      }
+                      if (node.className.includes) {
+                          if (
+                              node.className.includes(
+                                  "sienna-editor-block-wrapper"
+                              )
+                          ) {
+                              break;
+                          }
+                      }
+                  }
+                  domRect = node.getBoundingClientRect();
+              }
+          }
+          if (!domRect) return;
+          return {x:domRect.x,y:domRect.y};
+     }
 
 
      useEffect(()=>{
           const currContent = edtState.getCurrentContent();
           const selc = edtState.getSelection();
-          if ((selc.getFocusOffset() !== selc.getAnchorOffset())&& !selc.isCollapsed()) {setVisi(true);}
+          if ((selc.getFocusOffset() !== selc.getAnchorOffset())&& !selc.isCollapsed()) {
+               setVisi(true);
+               const {x,y} = getDOMPoisition();
+               console.log(x,y);
+          }
           else{setVisi(false);}
-          const currBlockType = RichUtils.getCurrentBlockType(edtState);
+          var currBlockType = null;
           try{
+               currBlockType = RichUtils.getCurrentBlockType(edtState);
                const ent = currContent.getEntity(selc.getFocusKey());
                console.log(ent);
           }
@@ -72,7 +130,7 @@ const TextEditorMenu = (props)=>{
      // eslint-disable-next-line react-hooks/exhaustive-deps
      },[props.editorState]);
 
-     // if(!visi)return null;
+     if(!visi)return null;
 
      const handleBold = (e)=>{
           e.stopPropagation();
@@ -115,7 +173,11 @@ const TextEditorMenu = (props)=>{
      }
 
      return(
-          <div className="comp-text-editor-menu-main-outer-cont">
+          <div className="comp-text-editor-menu-main-outer-cont"
+          style={{
+               top:0
+          }}
+          >
           <div className="comp-text-editor-menu-main-cont">
                <div className="comp-text-editor-menu-button-cont">
                     
