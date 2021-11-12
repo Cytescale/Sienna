@@ -126,6 +126,7 @@ export function BlockRenderer(contentBlock, editorState, editorStateChage, togge
 				component: AtomicBlockRender,
 				editable: false,
 				props: {
+					children: "",
 					editorState: editorState,
 					editorStateChage: editorStateChage,
 					toggelAdderMenu: toggelAdderMenu,

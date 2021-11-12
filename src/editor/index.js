@@ -77,6 +77,7 @@ export default class SiennaEditor extends react.Component {
 		this.domEditor.focus();
 	}
 	componentWillUnmount() {}
+
 	async editorStateChage(edtState) {
 		this.setState({ editorState: edtState });
 	}

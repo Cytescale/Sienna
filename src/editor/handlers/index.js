@@ -3,6 +3,7 @@
 import { RichUtils, EditorState, Modifier, getDefaultKeyBinding } from "draft-js";
 import { toContinueBlocks, HeaderBlocks } from "../constants";
 import { skipEntityBackspace } from "./utils";
+import { insertDivider } from "../commands";
 
 export function ReturnHandler(e, eState, editorStateChange) {
 	const editorState = eState;
@@ -10,10 +11,11 @@ export function ReturnHandler(e, eState, editorStateChange) {
 	const isContinousBlock = toContinueBlocks.indexOf(currBlockType) > -1;
 	const isAtStart = editorState.getSelection().getFocusOffset() === 0;
 	if (e.shiftKey) {
-		const newEditorState = RichUtils.insertSoftNewline(editorState);
-		if (newEditorState !== editorState) {
-			editorStateChange(newEditorState);
-		}
+		// const newEditorState = RichUtils.insertSoftNewline(editorState);
+		// if (newEditorState !== editorState) {
+		// 	editorStateChange(newEditorState);
+		// }
+		editorStateChange(insertDivider(editorState));
 	} else {
 		const currentContent = editorState.getCurrentContent();
 		const selection = editorState.getSelection();
