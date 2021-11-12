@@ -8,6 +8,7 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
 const CustomMenu = React.forwardRef(
      ({ children, style, className, 'aria-labelledby': labeledBy }, ref) => {
        const [value, setValue] = useState('');
+
        return (
          <div ref={ref} style={style} className={className} aria-labelledby={labeledBy}>
            <ul className="list-unstyled">{React.Children.toArray(children).filter((child) =>!value || child.props.children.toLowerCase().startsWith(value),)}</ul>
@@ -45,56 +46,48 @@ const TextEditorMenu = (props)=>{
      const [finX,setfinX] = useState(0);
      const [finY,setfinY] = useState(0);
      var edtState = props.editorState;
-
-     const  getSelectedBlockElement = () => {
-          var selection = window.getSelection();
-          if (selection.rangeCount == 0) return null;
-          var node = selection.getRangeAt(0).startContainer;
-          do {
-              if (node.getAttribute && node.getAttribute("data-block") == "true")
-                  return node;
-              node = node.parentNode;
-          } while (node != null);
-          return null;
-      };
   
-     const getDOMPoisition = ()=>{
-          const selcBlock = getSelectedBlockElement();
-          var node = null;
-          var domRect = null;
-          if (selcBlock) {
-              var treeWalker = document.createTreeWalker(
-                  selcBlock,
-                  NodeFilter.SHOW_ELEMENT,
-                  {
-                      acceptNode: function (node) {
-                          return NodeFilter.FILTER_ACCEPT;
-                      },
-                  },
-                  false
-              );
-              node = treeWalker.nextNode();
-              if (node) {
-                  while (node) {
-                      node = treeWalker.nextNode();
-                      if (node == null || !node.className) {
-                          break;
-                      }
-                      if (node.className.includes) {
-                          if (
-                              node.className.includes(
-                                  "sienna-editor-block-wrapper"
-                              )
-                          ) {
-                              break;
-                          }
-                      }
-                  }
-                  domRect = node.getBoundingClientRect();
-              }
+     const deterMineToolarPosition=()=>{
+          const selection = window.getSelection();
+          if(selection.type =='None' || selection.type =='Caret' || selection.anchorNode == null )return;
+          const domRect = selection.getRangeAt(0).getBoundingClientRect();
+          const init_spawn_x = domRect.x - 64;
+          const inti_spawn_y = domRect.y;
+          let offset_x = 0;
+          let offset_y = 0;
+          const viewport_height =  window.innerHeight;
+          const adder_menu_width = 450/2;
+          const adder_menu_height = 42;
+          const row_height_offset = adder_menu_height + 12;
+          if(init_spawn_x + adder_menu_width > window.innerWidth){
+               offset_x = window.innerWidth - (init_spawn_x + adder_menu_width) - 32;
           }
-          if (!domRect) return;
-          return {x:domRect.x,y:domRect.y};
+          if(init_spawn_x <=  0){
+               offset_x = init_spawn_x + 32;
+          }
+          if(inti_spawn_y + adder_menu_height + row_height_offset > viewport_height){
+               offset_y = viewport_height - (inti_spawn_y + adder_menu_height ) - (32+ row_height_offset);
+          }
+          if(inti_spawn_y <=  0){
+               offset_y = inti_spawn_y + (32+row_height_offset);
+          }
+          let spwn_x = init_spawn_x + offset_x;
+          let spwn_y = inti_spawn_y + offset_y - row_height_offset;
+          if(spwn_y <= inti_spawn_y && spwn_y+adder_menu_height >= inti_spawn_y){
+               if((spwn_y+row_height_offset+adder_menu_height)<=viewport_height){
+                    spwn_y = spwn_y+row_height_offset;
+               }
+               else if((spwn_y-row_height_offset-adder_menu_height)>=0){
+                    spwn_y = spwn_y-row_height_offset;
+                    const lower_diff = inti_spawn_y -(spwn_y + adder_menu_height);
+                    spwn_y = spwn_y + lower_diff; 
+               }
+               else{
+                    // no posi move;
+               }
+          }
+          setfinX(spwn_x);
+          setfinY(spwn_y);
      }
 
 
@@ -103,8 +96,7 @@ const TextEditorMenu = (props)=>{
           const selc = edtState.getSelection();
           if ((selc.getFocusOffset() !== selc.getAnchorOffset())&& !selc.isCollapsed()) {
                setVisi(true);
-               const {x,y} = getDOMPoisition();
-               console.log(x,y);
+               deterMineToolarPosition()
           }
           else{setVisi(false);}
           var currBlockType = null;
@@ -173,12 +165,12 @@ const TextEditorMenu = (props)=>{
      }
 
      return(
-          <div className="comp-text-editor-menu-main-outer-cont"
-          style={{
-               top:0
-          }}
-          >
-          <div className="comp-text-editor-menu-main-cont">
+          
+          <div className="comp-text-editor-menu-main-cont"
+           style={{
+               left:finX+"px",
+               top:finY+"px",
+          }}>
                <div className="comp-text-editor-menu-button-cont">
                     
                     <Dropdown>
@@ -259,7 +251,6 @@ const TextEditorMenu = (props)=>{
                     <svg className="comp-text-editor-menu-button-ico" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none" /><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>
                     </button>
                </div>
-          </div>
           </div>
      )
 }

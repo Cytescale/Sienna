@@ -433,9 +433,9 @@
 }
 
 .comp-text-editor-menu-main-cont {
-    position: relative;
+     position: fixed;
     z-index: 200;
-    /* width: 45%; */
+    width: 450px;
     height: 42px;
     padding-left: 32px;
     padding-right: 32px;

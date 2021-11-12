@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from "react";
 
-
+//
 
 const MenuButtonInd = [
      <div>
@@ -88,13 +88,67 @@ const ElementAdderMenu = (props)=>{
      const [selectedButtonInd,setselectedButtonInd] = useState(0);
      const [finX,setfinX] = useState(0);
      const [finY,setfinY] = useState(0);
+
+     const getSelectedBlockElement = () => {
+          var selection = window.getSelection();
+          if (selection.rangeCount == 0) return null;
+          var node = selection.getRangeAt(0).startContainer;
+          do {
+              if (node.getAttribute && node.getAttribute("data-block") == "true")
+                  return node;
+              node = node.parentNode;
+          } while (node != null);
+          return null;
+      };
+  
+
+      const getDOMRect = () => { 
+          const selcBlock = getSelectedBlockElement();
+          var node = null;
+          var domRect = null;
+          if (selcBlock) {
+              var treeWalker = document.createTreeWalker(
+                  selcBlock,
+                  NodeFilter.SHOW_ELEMENT,
+                  {
+                      acceptNode: function (node) {
+                          return NodeFilter.FILTER_ACCEPT;
+                      },
+                  },
+                  false
+              );
+              node = treeWalker.nextNode();
+              if (node) {
+                  while (node) {
+                      node = treeWalker.nextNode();
+                      if (node == null || !node.className) {
+                          break;
+                      }
+                      if (node.className.includes) {
+                          if (
+                              node.className.includes(
+                                  "sienna-editor-block-wrapper"
+                              )
+                          ) {
+                              break;
+                          }
+                      }
+                  }
+                  domRect = node.getBoundingClientRect();
+              }
+          }
+          if (!domRect) return;
+          return domRect;
+     }
+     
      useEffect(()=>{
           if(props.visi && !entry_anim){        
                setentry_anim(true);    
                setcurr_visi(true);
-               
-               let init_spawn_x = props.spawn_x;
-               let inti_spawn_y = props.spawn_y;
+               const DOMRect= getDOMRect();
+               if(!DOMRect){return;}
+               let init_spawn_x = DOMRect.x;
+               let inti_spawn_y = DOMRect.y;
                let offset_x = 0;
                let offset_y = 0;
                const viewport_height =  window.innerHeight;
