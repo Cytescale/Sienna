@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from "react";
-
+import { lockScroll } from "../handlers/utils";
 
 
 const MenuButtonInd = [
@@ -65,15 +65,6 @@ const MenuButtonInd = [
      </div>
      <div className="element_adder_menu_butt_sec_tit">
      Divide your document and add space between elements
-     </div>
-     </div>,
-     <div>
-     <div className="element_adder_menu_butt_pri_tit">
-     <svg  className="element_adder_menu_butt_ico" viewBox="0 0 512 512"><title>Folder</title><path d="M440 432H72a40 40 0 01-40-40V120a40 40 0 0140-40h75.89a40 40 0 0122.19 6.72l27.84 18.56a40 40 0 0022.19 6.72H440a40 40 0 0140 40v240a40 40 0 01-40 40zM32 192h448" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>
-     File
-     </div>    
-     <div className="element_adder_menu_butt_sec_tit">
-     Add any attachments or files to your document
      </div>
      </div>
 ]
@@ -216,7 +207,7 @@ const ElementAdderMenu = (props)=>{
                     display:curr_visi?'block':'none',
                }}>
                     <div className="element_adder_menu_tit">Element Menu
-                    <button className="element_adder_menu_close_butt" onClick={()=>props.triggerExist(false)}>
+                    <button className="element_adder_menu_close_butt" onClick={()=>{props.triggerExist(false);lockScroll(false)}}>
                          <svg className="element_adder_menu_close_butt_ico" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18.3 5.71c-.39-.39-1.02-.39-1.41 0L12 10.59 7.11 5.7c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"/></svg>
                     </button>
                     </div>

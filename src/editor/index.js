@@ -2,6 +2,7 @@
 
 import react, { useState, useEffect } from "react";
 import template_page_code from "./templatePage";
+import axios from "axios";
 import {
 	Editor,
 	EditorState,
@@ -27,8 +28,12 @@ import TextEditorMenu from "./menus/textEditorMenu";
 import { BlockRenderer, extendedBlockRenderMap } from "./block";
 import { ReturnHandler, KeyCommandHandler, KeyBinderHandle } from "./handlers";
 import { getUpperInsertableBlock, skipEntityBackspace } from "./handlers/utils";
+import { EditorMode, EditorLockState, EditorMenuState } from "./constants";
 
 export default class SiennaEditor extends react.Component {
+	CURRENT_LOCK_STATE = EditorLockState.LOCKED;
+	CURRENT_EDITOR_MENU_STATE = EditorMenuState.NONE;
+
 	constructor(props) {
 		super(props);
 		const blocksFromHTML = convertFromHTML(template_page_code);
@@ -39,28 +44,71 @@ export default class SiennaEditor extends react.Component {
 		this.state = {
 			editorState: EditorState.createWithContent(state),
 			elementAdderVisi: false,
+			CURRENT_EDITOR_MODE: EditorMode.BLURRED,
 			textEditorVisi: false,
 		};
 		this.setDomEditorRef = (ref) => (this.domEditor = ref);
+		this.setCurrentLockState = async (State) => {
+			// this.setState({ CURRENT_LOCK_STATE: State });
+			this.CURRENT_LOCK_STATE = State;
+		};
+		this.setEditorMode = async (mode) => {
+			this.setState({ CURRENT_EDITOR_MODE: mode });
+			// this.CURRENT_EDITOR_MODE = mode;
+		};
+		this.setEditorMenuState = async (state) => {
+			// this.setState({ CURRENT_EDITOR_MENU_STATE: state });
+			this.CURRENT_EDITOR_MENU_STATE = state;
+		};
+
+		this.EditorTextMenuVisiDetermine = this.EditorTextMenuVisiDetermine.bind(this);
 		this.editorStateChage = this.editorStateChage.bind(this);
 		this.setTextEditorVisi = this.setTextEditorVisi.bind(this);
 		this.setElementAdderVisi = this.setElementAdderVisi.bind(this);
 		this.toggelAdderMenu = this.toggelAdderMenu.bind(this);
-		this.blurHandle = this.blurHandle.bind(this);
-		this.focusHandle = this.focusHandle.bind(this);
+		this.EditorblurHandle = this.EditorblurHandle.bind(this);
+		this.EditorfocusHandle = this.EditorfocusHandle.bind(this);
+		this.rootFocusHandle = this.rootFocusHandle.bind(this);
 	}
+
 	async setElementAdderVisi(visi) {
+		if (visi === true) {
+			await this.setEditorMenuState(EditorMenuState.ADDER_MENU);
+		} else {
+			await this.setEditorMenuState(EditorMenuState.NONE);
+		}
+		// console.log("trigger focus lose");
+		// await this.setEditorMode(EditorMode.BLURRED);
 		this.setState({ elementAdderVisi: visi });
 	}
 	setTextEditorVisi(visi) {
+		if (visi === true) {
+			this.setEditorMenuState(EditorMenuState.TEXT_EDITOR_MENU);
+		} else {
+			this.setEditorMenuState(EditorMenuState.NONE);
+		}
 		this.setState({ textEditorVisi: visi });
 	}
 
-	focusHandle(e) {
+	closeAllMenus() {
 		this.setElementAdderVisi(false);
+		this.setTextEditorVisi(false);
 	}
 
-	blurHandle(e) {}
+	async rootFocusHandle(e) {
+		if (this.domEditor) {
+			this.domEditor.focus();
+		}
+	}
+
+	async EditorfocusHandle(e) {
+		console.log("focus entered");
+		await this.setEditorMode(EditorMode.FOCUSED);
+	}
+	async EditorblurHandle(e) {
+		console.log("focus lost	");
+		await this.setEditorMode(EditorMode.BLURRED);
+	}
 	toggelAdderMenu() {
 		if (!this.state.textEditorVisi) {
 			this.setElementAdderVisi(true).then(() => {
@@ -75,30 +123,67 @@ export default class SiennaEditor extends react.Component {
 
 	componentDidMount() {
 		this.domEditor.focus();
+		this.setEditorMode(EditorMode.FOCUSED);
+		this.setEditorMenuState(EditorMenuState.NONE);
+		this.setCurrentLockState(EditorLockState.UNLOCKED);
 	}
 	componentWillUnmount() {}
 
+	async EditorTextMenuVisiDetermine(edtState) {
+		const selc = edtState.getSelection();
+		if (selc.getAnchorKey() !== undefined && selc.getFocusKey() !== undefined) {
+			if (selc.getFocusOffset() !== selc.getAnchorOffset() && !selc.isCollapsed()) {
+				if (this.CURRENT_EDITOR_MENU_STATE !== EditorMenuState.NONE) {
+					await this.setElementAdderVisi(false);
+				}
+				if (this.CURRENT_EDITOR_MENU_STATE === EditorMenuState.NONE) {
+					this.setTextEditorVisi(true);
+				}
+			} else {
+				this.setTextEditorVisi(false);
+			}
+		} else {
+			this.setTextEditorVisi(false);
+		}
+	}
+
 	async editorStateChage(edtState) {
+		// console.log(edtState.getSelection());
+		this.EditorTextMenuVisiDetermine(edtState);
 		this.setState({ editorState: edtState });
 	}
 
 	render() {
+		let focusObject = {
+			current_editor_mode: this.state.CURRENT_EDITOR_MODE,
+			set_editor_mode: this.setEditorMode,
+		};
+		let editorAdderMenuObject = {
+			visi: this.state.elementAdderVisi,
+			setVisi: this.setElementAdderVisi,
+		};
+
 		return (
-			<div className="sienna-editor-main-cont">
+			<div className="sienna-editor-main-cont" onFocus={this.rootFocusHandle}>
 				<Editor
 					ref={this.setDomEditorRef}
-					readOnly={false}
+					readOnly={this.CURRENT_LOCK_STATE === EditorLockState.LOCKED ? true : false}
 					placeholder="Type anything here"
 					className="sienna-editor-root"
 					editorState={this.state.editorState}
 					handleKeyCommand={(c) => {
-						return KeyCommandHandler(c, this.state.editorState, this.editorStateChage);
+						return KeyCommandHandler(
+							c,
+							this.state.editorState,
+							this.setElementAdderVisi,
+							this.editorStateChage
+						);
 					}}
 					handleReturn={(e, es) => {
 						return ReturnHandler(e, es, this.editorStateChage);
 					}}
 					keyBindingFn={(e) => {
-						return KeyBinderHandle(e);
+						return KeyBinderHandle(e, editorAdderMenuObject, focusObject);
 					}}
 					onChange={this.editorStateChage}
 					blockRenderMap={extendedBlockRenderMap}
@@ -107,18 +192,20 @@ export default class SiennaEditor extends react.Component {
 							contntBlock,
 							this.state.editorState,
 							this.editorStateChage,
-							this.toggelAdderMenu
+							this.toggelAdderMenu,
+							this.CURRENT_LOCK_STATE
 						);
 					}}
-					onFocus={this.focusHandle}
-					onBlur={this.blurHandle}
+					onFocus={this.EditorfocusHandle}
+					onBlur={this.EditorblurHandle}
 				/>
 				<ElementAdderMenu
 					visi={this.state.elementAdderVisi}
 					triggerExist={this.setElementAdderVisi}
 				/>
 				<TextEditorMenu
-					visi={true}
+					visi={this.state.textEditorVisi}
+					domEditor={this.domEditor}
 					editorStateChage={this.editorStateChage}
 					editorState={this.state.editorState}
 				/>

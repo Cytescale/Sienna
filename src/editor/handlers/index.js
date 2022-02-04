@@ -36,7 +36,7 @@ export function ReturnHandler(e, eState, editorStateChange) {
 	return "handled";
 }
 
-export function KeyCommandHandler(command, eState, editorStateChange) {
+export function KeyCommandHandler(command, eState, setAdderMenu, editorStateChange) {
 	switch (command) {
 		case "backspace": {
 			const edtrState = eState;
@@ -73,9 +73,19 @@ export function KeyCommandHandler(command, eState, editorStateChange) {
 	}
 }
 
-export function KeyBinderHandle(e) {
+export function KeyBinderHandle(e, editorAdderMenuObject) {
+	// console.log(e.keyCode);
 	switch (e.keyCode) {
+		case 191: {
+			// " / "Trigger Button keycode
+			editorAdderMenuObject.setVisi(true);
+			return;
+		}
 		case 17: {
+			return;
+		}
+		case 27: {
+			editorAdderMenuObject.setVisi(!editorAdderMenuObject.visi);
 			return;
 		}
 		default: {

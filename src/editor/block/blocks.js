@@ -22,6 +22,8 @@ import {
 	SelectionState,
 } from "draft-js";
 import { insertNewBlock } from "../commands";
+import { EditorLockState } from "../constants";
+import { lockScroll } from "../handlers/utils";
 
 function getPlaceholderData(blocktype) {
 	switch (blocktype) {
@@ -54,6 +56,7 @@ function BlockWrapper(props) {
 	const [exit_anim, setexit_anim] = useState(false);
 	const [visi, setVisi] = useState(false);
 	const [currVisi, setcurrVisi] = useState(false);
+	const editor_unlocked = props.blockProps.lockState === EditorLockState.UNLOCKED ?? true;
 	if (visi && !entry_anim) {
 		setentry_anim(true);
 		setcurrVisi(true);
@@ -65,9 +68,11 @@ function BlockWrapper(props) {
 		<div
 			className={`sienna-editor-master-wrapper`}
 			onMouseEnter={() => {
-				setentry_anim(false);
-				setexit_anim(false);
-				setVisi(true);
+				if (editor_unlocked) {
+					setentry_anim(false);
+					setexit_anim(false);
+					setVisi(true);
+				}
 			}}
 			onMouseLeave={() => {
 				setentry_anim(false);
@@ -114,19 +119,33 @@ function BlockWrapper(props) {
 						onClick={(e) => {
 							e.preventDefault();
 							e.stopPropagation();
+							lockScroll(true);
 							const chngeSelec = SelectionState.createEmpty(props.block.getKey());
-							props.blockProps
-								.editorStateChage(
-									insertNewBlock(
+							if (props.blockProps.children.length > 0) {
+								props.blockProps
+									.editorStateChage(
+										insertNewBlock(
+											EditorState.forceSelection(
+												props.blockProps.editorState,
+												chngeSelec
+											)
+										)
+									)
+									.then(() => {
+										props.blockProps.toggelAdderMenu();
+									});
+							} else {
+								props.blockProps
+									.editorStateChage(
 										EditorState.forceSelection(
 											props.blockProps.editorState,
 											chngeSelec
 										)
 									)
-								)
-								.then(() => {
-									props.blockProps.toggelAdderMenu();
-								});
+									.then(() => {
+										props.blockProps.toggelAdderMenu();
+									});
+							}
 						}}
 					>
 						<svg
@@ -150,7 +169,11 @@ function BlockWrapper(props) {
 function Header1BlockRender(props) {
 	return (
 		<BlockWrapper {...props}>
-			<div className="sienna-editor-header-1-block">
+			<div
+				className="sienna-editor-header-1-block"
+				contentEditable={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+				readOnly={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+			>
 				<EditorBlock {...props} />
 			</div>
 		</BlockWrapper>
@@ -159,8 +182,12 @@ function Header1BlockRender(props) {
 function Header2BlockRender(props) {
 	return (
 		<BlockWrapper {...props}>
-			<div className="sienna-editor-header-2-block">
-				<EditorBlock {...props} />
+			<div
+				className="sienna-editor-header-2-block"
+				contentEditable={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+				readOnly={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+			>
+				<EditorBlock {...props} readOnly={true} />
 			</div>
 		</BlockWrapper>
 	);
@@ -169,8 +196,12 @@ function Header2BlockRender(props) {
 function UnstyledBlockRender(props) {
 	return (
 		<BlockWrapper {...props}>
-			<div className={`sienna-editor-unstyle-block`}>
-				<EditorBlock {...props} />
+			<div
+				className={`sienna-editor-unstyle-block`}
+				contentEditable={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+				readOnly={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+			>
+				<EditorBlock {...props} readOnly={true} />
 			</div>
 		</BlockWrapper>
 	);
@@ -178,8 +209,12 @@ function UnstyledBlockRender(props) {
 function BlockBlockRender(props) {
 	return (
 		<BlockWrapper {...props}>
-			<div className="sienna-editor-block-block">
-				<EditorBlock {...props} />
+			<div
+				className="sienna-editor-block-block"
+				contentEditable={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+				readOnly={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+			>
+				<EditorBlock {...props} readOnly={true} />
 			</div>
 		</BlockWrapper>
 	);
@@ -187,7 +222,11 @@ function BlockBlockRender(props) {
 function BlockCodeRender(props) {
 	return (
 		<BlockWrapper {...props}>
-			<div className="sienna-editor-block-code">
+			<div
+				className="sienna-editor-block-code"
+				contentEditable={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+				readOnly={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+			>
 				<EditorBlock {...props} />
 			</div>
 		</BlockWrapper>
@@ -197,8 +236,12 @@ function BlockCodeRender(props) {
 function BlockUOLRender(props) {
 	return (
 		<BlockWrapper {...props}>
-			<div className="sienna-editor-UOL-block">
-				<div className="sienna-editor-UOL-block-cir" contentEditable={false} readOnly />
+			<div
+				className="sienna-editor-UOL-block"
+				contentEditable={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+				readOnly={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+			>
+				<div className="sienna-editor-UOL-block-cir" />
 				<EditorBlock {...props} />
 			</div>
 		</BlockWrapper>
@@ -208,8 +251,12 @@ function BlockUOLRender(props) {
 function BlockOLRender(props) {
 	return (
 		<BlockWrapper {...props}>
-			<div className="sienna-editor-OL-block">
-				<div className="sienna-editor-OL-block-count" contentEditable={false} readOnly />
+			<div
+				className="sienna-editor-OL-block"
+				contentEditable={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+				readOnly={props.blockProps.lockState === EditorLockState.UNLOCKED ?? true}
+			>
+				<div className="sienna-editor-OL-block-count" />
 				<EditorBlock {...props} />
 			</div>
 		</BlockWrapper>
@@ -219,7 +266,6 @@ function BlockOLRender(props) {
 function AtomicBlockRender(props) {
 	const type = props.contentState.getEntity(props.block.getEntityAt(0)).type;
 	const data = props.contentState.getEntity(props.block.getEntityAt(0)).getData();
-
 	const handleDividerClick = (e) => {
 		// props.blockProps.editorStateChage(EditorState.forceSelection(props.blockProps.editorState, props.selection))
 	};

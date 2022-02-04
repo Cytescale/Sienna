@@ -1,6 +1,15 @@
 /** @format */
 
 import { SelectionState, Modifier, EditorState } from "draft-js";
+
+export const lockScroll = (bool) => {
+	if (bool) {
+		document.body.style.overflow = "hidden";
+	} else {
+		document.body.style.overflow = "auto";
+	}
+};
+
 export const getUpperInsertableBlock = (conState, blockKey) => {
 	var blockBefore = conState.getBlockBefore(blockKey);
 	while (blockBefore) {

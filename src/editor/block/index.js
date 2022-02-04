@@ -32,7 +32,8 @@ import {
 	UnstyledBlockRender,
 	AtomicBlockRender,
 } from "./blocks";
-export function BlockRenderer(contentBlock, editorState, editorStateChage, toggelAdderMenu) {
+
+export function BlockRenderer(contentBlock, editorState, editorStateChage, toggelAdderMenu, LockState) {
 	const ty = contentBlock.getType();
 	switch (ty) {
 		case "header-one": {
@@ -45,6 +46,7 @@ export function BlockRenderer(contentBlock, editorState, editorStateChage, togge
 					editorState: editorState,
 					editorStateChage: editorStateChage,
 					toggelAdderMenu: toggelAdderMenu,
+					lockState: LockState,
 				},
 			};
 		}
@@ -58,6 +60,7 @@ export function BlockRenderer(contentBlock, editorState, editorStateChage, togge
 					editorState: editorState,
 					editorStateChage: editorStateChage,
 					toggelAdderMenu: toggelAdderMenu,
+					lockState: LockState,
 				},
 			};
 		}
@@ -72,6 +75,7 @@ export function BlockRenderer(contentBlock, editorState, editorStateChage, togge
 					editorState: editorState,
 					editorStateChage: editorStateChage,
 					toggelAdderMenu: toggelAdderMenu,
+					lockState: LockState,
 				},
 			};
 		}
@@ -85,6 +89,7 @@ export function BlockRenderer(contentBlock, editorState, editorStateChage, togge
 					editorState: editorState,
 					editorStateChage: editorStateChage,
 					toggelAdderMenu: toggelAdderMenu,
+					lockState: LockState,
 				},
 			};
 		}
@@ -97,6 +102,7 @@ export function BlockRenderer(contentBlock, editorState, editorStateChage, togge
 					editorState: editorState,
 					editorStateChage: editorStateChage,
 					toggelAdderMenu: toggelAdderMenu,
+					lockState: LockState,
 				},
 			};
 		case "unstyled":
@@ -108,6 +114,7 @@ export function BlockRenderer(contentBlock, editorState, editorStateChage, togge
 					editorState: editorState,
 					editorStateChage: editorStateChage,
 					toggelAdderMenu: toggelAdderMenu,
+					lockState: LockState,
 				},
 			};
 		case "code":
@@ -119,6 +126,7 @@ export function BlockRenderer(contentBlock, editorState, editorStateChage, togge
 					editorState: editorState,
 					editorStateChage: editorStateChage,
 					toggelAdderMenu: toggelAdderMenu,
+					lockState: LockState,
 				},
 			};
 		case "atomic": {
@@ -130,6 +138,7 @@ export function BlockRenderer(contentBlock, editorState, editorStateChage, togge
 					editorState: editorState,
 					editorStateChage: editorStateChage,
 					toggelAdderMenu: toggelAdderMenu,
+					lockState: LockState,
 				},
 			};
 		}

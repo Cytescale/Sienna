@@ -1,6 +1,8 @@
 import React,{useState,useEffect} from "react";
 import { convertToRaw, Editor, EditorState, RichUtils } from "draft-js";
 import {Dropdown} from 'react-bootstrap';
+import {convertToHTML} from 'draft-convert';
+import { EditorMenuState } from "../constants";
 
 const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
      <button href="" ref={ref} className="comp-text-editor-block-type-butt" onClick={(e) => { e.preventDefault(); onClick(e);}}>{children}</button>));
@@ -92,82 +94,79 @@ const TextEditorMenu = (props)=>{
 
 
      useEffect(()=>{
-          const currContent = edtState.getCurrentContent();
-          const selc = edtState.getSelection();
-          if ((selc.getFocusOffset() !== selc.getAnchorOffset())&& !selc.isCollapsed()) {
-               setVisi(true);
+          setVisi(props.visi);
+          const visiDetermine = async ()=>{
+               const currContent = edtState.getCurrentContent(); 
+               // console.log(props.visi);
+               const selc = edtState.getSelection();
+               if(!selc.getFocusKey() && !selc.getAnchorKey()){setVisi(false);return;};
                deterMineToolarPosition()
+               var currBlockType = null;
+               try{
+                    currBlockType = RichUtils.getCurrentBlockType(edtState);
+                    const ent = currContent.getEntity(selc.getFocusKey());
+                    console.log(ent);
+               }
+               catch(e){
+                    // console.log('no entr');
+               }
+     
+               const block_ind = block_type_array.findIndex(element=>element==currBlockType)
+               const anchorKey = edtState.getSelection().getAnchorKey();
+               const currContentBlock= currContent.getBlockForKey(anchorKey);
+               const inlineStyle = currContentBlock.getInlineStyleAt(edtState.getSelection().getAnchorOffset());
+               setblock_type_index(block_ind);
+               setbld(inlineStyle.has("BOLD"));
+               setitl(inlineStyle.has("ITALIC"));
+               setuld(inlineStyle.has("UNDERLINE"));
+               setstk(inlineStyle.has("STRIKETHROUGH"));
+               setcde(inlineStyle.has("CODE"));
           }
-          else{setVisi(false);}
-          var currBlockType = null;
-          try{
-               currBlockType = RichUtils.getCurrentBlockType(edtState);
-               const ent = currContent.getEntity(selc.getFocusKey());
-               console.log(ent);
-          }
-          catch(e){
-               // console.log('no entr');
-          }
-
-          const block_ind = block_type_array.findIndex(element=>element==currBlockType)
-          const anchorKey = edtState.getSelection().getAnchorKey();
-          const currContentBlock= currContent.getBlockForKey(anchorKey);
-          const inlineStyle = currContentBlock.getInlineStyleAt(edtState.getSelection().getAnchorOffset());
-          setblock_type_index(block_ind);
-          setbld(inlineStyle.has("BOLD"));
-          setitl(inlineStyle.has("ITALIC"));
-          setuld(inlineStyle.has("UNDERLINE"));
-          setstk(inlineStyle.has("STRIKETHROUGH"));
-          setcde(inlineStyle.has("CODE"));
+          if(props.visi)visiDetermine();
      // eslint-disable-next-line react-hooks/exhaustive-deps
-     },[props.editorState]);
+     },[props.editorState,props.visi]);
 
-     if(!visi)return null;
-
+     
      const handleBold = (e)=>{
-          e.stopPropagation();
-          e.preventDefault();
-          const ss = edtState.getSelection();
           const newState = RichUtils.toggleInlineStyle(edtState, "BOLD");
           setbld(!bld);
-          props.editorStateChage(EditorState.forceSelection(newState,ss));
+          props.editorStateChage(newState);
+          e.stopPropagation();
+          e.preventDefault();          
      }
      const handleUld = (e)=>{
-          e.stopPropagation();
-          e.preventDefault();
-          const ss = edtState.getSelection();
           const newState = RichUtils.toggleInlineStyle(edtState, "UNDERLINE");
           setuld(!uld);
-          props.editorStateChage(EditorState.forceSelection(newState,ss));
+          props.editorStateChage(newState);
+          e.stopPropagation();
+          e.preventDefault();
      }
      const handleItl = (e)=>{
-          e.stopPropagation();
-          e.preventDefault();
-          const ss = edtState.getSelection();
           const newState = RichUtils.toggleInlineStyle(edtState, "ITALIC");
           setitl(!itl);
-          props.editorStateChage(EditorState.forceSelection(newState,ss));
-     }
-     const handleStk = (e)=>{
+          props.editorStateChage(newState);
           e.stopPropagation();
           e.preventDefault();
-          const ss = edtState.getSelection();
+     }
+     const handleStk = (e)=>{
           const newState = RichUtils.toggleInlineStyle(edtState, "STRIKETHROUGH");
           setstk(!stk);
-          props.editorStateChage(EditorState.forceSelection(newState,ss));
+          props.editorStateChage(newState);
+          e.stopPropagation();
+          e.preventDefault();
      }
 
 
      const handleBlockChange = (ind)=>{
-          const ss = edtState.getSelection();
           const nstate = RichUtils.toggleBlockType(edtState, block_type_array[ind])
-          props.editorStateChage(EditorState.forceSelection(nstate,ss));          
+          props.editorStateChage(nstate);          
      }
-
+     if(!visi){return <></>};
      return(
           
           <div className="comp-text-editor-menu-main-cont"
-           style={{
+        
+          style={{
                left:finX+"px",
                top:finY+"px",
           }}>
@@ -244,7 +243,7 @@ const TextEditorMenu = (props)=>{
                   
                     `}
                     onClick={(e)=>{
-                              console.log(convertToRaw(edtState.getCurrentContent()));
+                              console.log(convertToHTML(edtState.getCurrentContent()));
                          }
                     }
                     >
