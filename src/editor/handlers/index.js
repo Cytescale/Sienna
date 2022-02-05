@@ -11,6 +11,7 @@ import { skipEntityBackspace } from "./utils";
 import { insertDivider, insertProperBlock } from "../commands";
 import { MenuButtonInd } from "../menus/elementMenu";
 import { SelectionState } from "draft-js";
+import { removeBlockTypes } from "./utils";
 
 export function ReturnHandler(
   e,
@@ -85,7 +86,17 @@ const backspaceHandler = (eState, editorStateChange) => {
     const blockKey = currSelec.getFocusKey();
     const block = contState.getBlockForKey(blockKey);
     if (HeaderBlocks.includes(block.getType())) {
-      editorStateChange(RichUtils.toggleBlockType(edtrState, "unstyled"));
+      let newEs = EditorState.push(
+        eState,
+        Modifier.setBlockType(contState, currSelec, "unstyled"),
+        "change-block-type"
+      );
+      const currSelc = newEs.getSelection();
+      const befselc = newEs.getCurrentContent().getSelectionBefore();
+      newEs = EditorState.forceSelection(newEs, befselc);
+      newEs = RichUtils.toggleBlockType(newEs, "unstyled");
+      newEs = EditorState.forceSelection(newEs, currSelc);
+      editorStateChange(newEs);
       return "handled";
     }
     try {
@@ -102,7 +113,9 @@ const backspaceHandler = (eState, editorStateChange) => {
         editorStateChange(newState);
         return "handled";
       }
-    } catch (e) {}
+    } catch (e) {
+     //  console.log(e);
+    }
   }
   return "not-handled";
 };
@@ -137,7 +150,7 @@ export function KeyCommandHandler(
       break;
     }
     case "backspace": {
-      backspaceHandler(eState, editorStateChange);
+      return backspaceHandler(eState, editorStateChange);
       break;
     }
     default: {
@@ -148,10 +161,12 @@ export function KeyCommandHandler(
 
 export function KeyBinderHandle(e, editorAdderMenuObject) {
   // console.log(e.keyCode);
-
+  console.log();
   switch (e.keyCode) {
     case 191: {
-      editorAdderMenuObject.toggleAdderMenu();
+      if (!e.shiftKey) {
+        editorAdderMenuObject.toggleAdderMenu();
+      }
       return;
     }
     case 17: {
