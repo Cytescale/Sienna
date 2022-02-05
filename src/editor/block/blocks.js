@@ -119,7 +119,7 @@ function BlockWrapper(props) {
 						onClick={(e) => {
 							e.preventDefault();
 							e.stopPropagation();
-							lockScroll(true);
+
 							const chngeSelec = SelectionState.createEmpty(props.block.getKey());
 							if (props.blockProps.children.length > 0) {
 								props.blockProps

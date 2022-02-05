@@ -117,12 +117,10 @@
 	width: 270px;
 	height: 250px;
 	overflow-x: hidden;
-
 	z-index: 300;
 	box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.25);
 	border-radius: 4px;
 	position: fixed;
-
 	background-color: #31363f;
 }
 
@@ -207,7 +205,7 @@
 }
 .element_adder_menu_butt {
 	width: 100%;
-	height: auto;
+	height: 62px;
 	text-align: start;
 	background-color: rgba(0, 0, 0, 0);
 	border-style: none;
