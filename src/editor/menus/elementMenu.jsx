@@ -1,6 +1,6 @@
      import React,{useState,useEffect, useRef} from "react";
      import { lockScroll } from "../handlers/utils";
-     
+     import { insertProperBlock } from "../commands";
 
      
      export const MenuButtonInd = [
@@ -247,9 +247,6 @@
                          display:curr_visi?'block':'none',
                     }}
                     
-                    onKeyDown={(e)=>{
-                         console.log('pess');
-                    }}
                     >
                          <div className="element_adder_menu_tit">Element Menu
                          <button className="element_adder_menu_close_butt" onClick={()=>{props.triggerExist(false);}}>
@@ -263,7 +260,12 @@
                                    MenuButtonInd.map((b,ind)=>{
                                         
                                         return(<button
-                                        onMouseEnter={()=>{props.editorAdderMenuObject.setAdderMenuInd(null);props.editorAdderMenuObject.setAdderMenuMouseInd(ind);}}
+                                        onClick={(e)=>{
+                                        let type = MenuButtonInd[ind].id;
+                                        props.editorStateChange(insertProperBlock(type, props.editorState));
+                                        props.editorAdderMenuObject.setVisi(false);
+                                        }}        
+                                             onMouseEnter={()=>{props.editorAdderMenuObject.setAdderMenuInd(null);props.editorAdderMenuObject.setAdderMenuMouseInd(ind);}}
                                         className={`
                                         element_adder_menu_butt
                                         ${props.editorAdderMenuObject.adderInd===ind||props.editorAdderMenuObject.adderMenuMouseInd===ind?'element_adder_menu_butt_selected':''}

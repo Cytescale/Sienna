@@ -34,7 +34,6 @@ import { lockScroll } from "./handlers/utils";
 export default class SiennaEditor extends react.Component {
   CURRENT_LOCK_STATE = EditorLockState.LOCKED;
   CURRENT_EDITOR_MENU_STATE = EditorMenuState.NONE;
-
   constructor(props) {
     super(props);
     const blocksFromHTML = convertFromHTML(template_page_code);
@@ -47,6 +46,7 @@ export default class SiennaEditor extends react.Component {
       elementAdderVisi: false,
       adderMenuInd: 0,
       adderMenuMouseInd: 0,
+      adderMenuPrevSelec: null,
       CURRENT_EDITOR_MODE: EditorMode.BLURRED,
       textEditorVisi: false,
     };
@@ -76,6 +76,10 @@ export default class SiennaEditor extends react.Component {
     this.closeAllMenus = this.closeAllMenus.bind(this);
     this.setAdderMenuInd = this.setAdderMenuInd.bind(this);
     this.setAdderMenuMouseInd = this.setAdderMenuMouseInd.bind(this);
+    this.setAdderMenuPrevSelec = this.setAdderMenuPrevSelec.bind(this);
+  }
+  setAdderMenuPrevSelec(selec) {
+    this.setState({ adderMenuPrevSelec: selec });
   }
   setAdderMenuInd(int) {
     this.setState({ adderMenuInd: int });
@@ -83,7 +87,14 @@ export default class SiennaEditor extends react.Component {
   setAdderMenuMouseInd(int) {
     this.setState({ adderMenuMouseInd: int });
   }
+
+  async setPrevBlockData() {
+    let selection_state = this.state.editorState.getSelection();
+    this.setAdderMenuPrevSelec(selection_state);
+  }
+
   async setElementAdderVisi(visi) {
+    this.setPrevBlockData();
     if (visi === true) {
       lockScroll(true);
       await this.setEditorMenuState(EditorMenuState.ADDER_MENU);
@@ -94,6 +105,20 @@ export default class SiennaEditor extends react.Component {
 
     this.setState({ elementAdderVisi: visi });
   }
+
+  toggelAdderMenu() {
+    this.setPrevBlockData();
+    if (!this.state.elementAdderVisi) {
+      this.setElementAdderVisi(true).then(() => {
+        //    this.domEditor.focus();
+      });
+    } else {
+      this.setElementAdderVisi(false).then(() => {
+        //    this.domEditor.focus();
+      });
+    }
+  }
+
   setTextEditorVisi(visi) {
     if (visi === true) {
       this.setEditorMenuState(EditorMenuState.TEXT_EDITOR_MENU);
@@ -116,24 +141,13 @@ export default class SiennaEditor extends react.Component {
   }
 
   async EditorfocusHandle(e) {
-    console.log("focus entered");
+    //     console.log("focus entered");
     await this.setEditorMode(EditorMode.FOCUSED);
   }
   async EditorblurHandle(e) {
-    console.log("focus lost	");
+    //     console.log("focus lost	");
     this.closeAllMenus();
     await this.setEditorMode(EditorMode.BLURRED);
-  }
-  toggelAdderMenu() {
-    if (!this.state.elementAdderVisi) {
-      this.setElementAdderVisi(true).then(() => {
-        //    this.domEditor.focus();
-      });
-    } else {
-      this.setElementAdderVisi(false).then(() => {
-        //    this.domEditor.focus();
-      });
-    }
   }
 
   componentDidMount() {
@@ -166,7 +180,7 @@ export default class SiennaEditor extends react.Component {
   }
 
   async editorStateChage(edtState) {
-    //     this.EditorTextMenuVisiDetermine(edtState);
+    this.EditorTextMenuVisiDetermine(edtState);
     this.setState({ editorState: edtState });
   }
 
@@ -184,6 +198,7 @@ export default class SiennaEditor extends react.Component {
       setAdderMenuInd: this.setAdderMenuInd,
       closeAllMenus: this.closeAllMenus,
       toggleAdderMenu: this.toggelAdderMenu,
+      prevSelecState: this.state.adderMenuPrevSelec,
     };
 
     return (
@@ -193,6 +208,9 @@ export default class SiennaEditor extends react.Component {
           readOnly={
             this.CURRENT_LOCK_STATE === EditorLockState.LOCKED ? true : false
           }
+          onClick={(e) => {
+            console.log("rpe");
+          }}
           placeholder="Type anything here"
           className="sienna-editor-root"
           editorState={this.state.editorState}
@@ -234,6 +252,8 @@ export default class SiennaEditor extends react.Component {
           triggerExist={this.setElementAdderVisi}
           editor_ref={this.domEditor}
           focusObject={this.focusObject}
+          editorState={this.state.editorState}
+          editorStateChange={this.editorStateChage}
           editorAdderMenuObject={editorAdderMenuObject}
         />
         <TextEditorMenu

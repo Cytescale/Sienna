@@ -10,6 +10,7 @@ import { toContinueBlocks, HeaderBlocks } from "../constants";
 import { skipEntityBackspace } from "./utils";
 import { insertDivider, insertProperBlock } from "../commands";
 import { MenuButtonInd } from "../menus/elementMenu";
+import { SelectionState } from "draft-js";
 
 export function ReturnHandler(
   e,
@@ -32,7 +33,28 @@ export function ReturnHandler(
       ? editorAdderMenuObject.adderMenuMouseInd
       : editorAdderMenuObject.adderInd;
     let type = MenuButtonInd[ind].id;
-    editorStateChange(insertProperBlock(type, editorState));
+
+    const prev_selec = editorAdderMenuObject.prevSelecState;
+    const curr_selec = eState.getSelection();
+    let empty_selec = SelectionState.createEmpty(
+      eState.getCurrentContent().getBlockForKey(curr_selec.getFocusKey()).key
+    );
+    empty_selec = empty_selec.merge({
+      anchorOffset: prev_selec.getAnchorOffset(),
+      focusOffset: curr_selec.getFocusOffset(),
+    });
+    //     console.log(empty_selec);
+    let newEs = EditorState.push(
+      eState,
+      Modifier.removeRange(
+        editorState.getCurrentContent(),
+        empty_selec,
+        "forward"
+      ),
+      "remove-text"
+    );
+
+    editorStateChange(insertProperBlock(type, newEs));
     editorAdderMenuObject.setVisi(false);
   } else {
     const currentContent = editorState.getCurrentContent();
