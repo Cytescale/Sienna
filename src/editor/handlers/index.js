@@ -12,10 +12,17 @@ import {
   skipEntityBackspace,
   wholeBlockSelected,
 } from "./utils";
-import { insertDivider, insertProperBlock, insertNewBlock } from "../commands";
+import {
+  insertDivider,
+  insertProperBlock,
+  insertNewBlock,
+  toggleProperBlock,
+  toggleBlockWithType,
+} from "../commands";
 import { MenuButtonInd } from "../menus/elementMenu";
 import { SelectionState } from "draft-js";
 import { removeBlockTypes } from "./utils";
+import { getSelectedBlock, getSelectionText } from "draftjs-utils";
 
 export function ReturnHandler(
   e,
@@ -41,25 +48,68 @@ export function ReturnHandler(
 
     const prev_selec = editorAdderMenuObject.prevSelecState;
     const curr_selec = eState.getSelection();
-    let empty_selec = SelectionState.createEmpty(
+    const empty_selec = SelectionState.createEmpty(
       eState.getCurrentContent().getBlockForKey(curr_selec.getFocusKey()).key
     );
-    empty_selec = empty_selec.merge({
+    const temp_selec = empty_selec.merge({
       anchorOffset: prev_selec.getAnchorOffset(),
-      focusOffset: curr_selec.getFocusOffset(),
+      focusOffset: curr_selec.getAnchorOffset(),
+      anchorKey: prev_selec.getAnchorKey(),
+      focusKey: prev_selec.getAnchorKey(),
     });
-    //     console.log(empty_selec);
-    let newEs = EditorState.push(
-      eState,
-      Modifier.removeRange(
-        editorState.getCurrentContent(),
-        empty_selec,
-        "forward"
-      ),
-      "remove-text"
+    const selecText = getSelectionText(
+      EditorState.acceptSelection(editorState, temp_selec)
     );
 
-    editorStateChange(insertProperBlock(type, newEs));
+    const block = getSelectedBlock(eState);
+    if (selecText.length === block.getLength() && selecText === block.text) {
+      let wholeRange = SelectionState.createEmpty(block.getKey());
+      wholeRange = wholeRange.merge({
+        anchorOffset: 0,
+        focusOffset: block.getLength() + 1,
+        anchorKey: block.key,
+        focusKey: block.key,
+      });
+      let newEs = toggleProperBlock(
+        type,
+        EditorState.push(
+          eState,
+          Modifier.removeRange(
+            eState.getCurrentContent(),
+            wholeRange,
+            "backward"
+          ),
+          "remove-text"
+        )
+      );
+      var newSelec = SelectionState.createEmpty(block.getKey());
+      newSelec = newSelec.set("anchorOffset", 0);
+      newSelec = newSelec.set("focusKey", block.getKey());
+      newSelec = newSelec.set("focusOffset", 0);
+      newEs = EditorState.forceSelection(newEs, newSelec);
+      // newEs = toggleBlockWithType(eState, "atomic");
+      editorStateChange(newEs);
+    } else {
+      let empty_selec = SelectionState.createEmpty(
+        eState.getCurrentContent().getBlockForKey(curr_selec.getFocusKey()).key
+      );
+      empty_selec = empty_selec.merge({
+        anchorOffset: prev_selec.getAnchorOffset(),
+        focusOffset: curr_selec.getFocusOffset(),
+      });
+      let newEs = EditorState.push(
+        eState,
+        Modifier.removeRange(
+          editorState.getCurrentContent(),
+          empty_selec,
+          "forward"
+        ),
+        "remove-text"
+      );
+
+      editorStateChange(insertProperBlock(type, newEs));
+    }
+
     editorAdderMenuObject.setVisi(false);
   } else if (afterWholeBlockSelected(editorState)) {
     let eState = editorState;

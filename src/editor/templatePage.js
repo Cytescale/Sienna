@@ -1,31 +1,28 @@
 /** @format */
 
 const template_page_code = `
-<h1>🚀Header One example</h1>
+<h1>🚀Introduction of Technology</h1>
 
-<blockquote>This is just a quote</blockquote>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
-sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
-nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in 
-reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla 
-pariatur. Excepteur sint occaecat cupidatat non proident, sunt in 
-culpa qui officia deserunt mollit anim id est laborum.
+Technology is all around you – in your gaming gadgets like the Wii, Playstation, Xbox, etc. and in your mobile phones, iPads, computers, etc. Most of the things we have in our kitchen, like the microwave, toaster, fridge, etc. are all different types of technology. Technology is when we take something from the world of science and then create it into something that humans use.
 
+We must keep our food cold so that it is not spoilt by being out in the warm weather. This concept of science helped scientists develop technology to keep our food cold when we are not eating it by using the fridge. However, all of us like to eat hot food. So, to instantly make food hot, scientists created a microwave. In this way, scientists used technology to help all of us with our daily lives. Technology is very useful in our daily lives.
+<br></br><br></br>
+<br></br><br></br>
+<h2>📃List items</h2>
 <ul>
 <li>This is a item1</li>
 <li>This is a item2</li>
 <li>This is a item3</li>
 </ul>
-
-<div> </div>
+<br></br><br></br>
 <h2>🔥Header two example</h2>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Sagittis eu volutpat odio facilisis mauris sit. Tellus cras adipiscing enim eu turpis egestas pretium aenean pharetra. A lacus vestibulum sed arcu non odio euismod. Ut eu sem integer vitae justo eget. Id venenatis a condimentum vitae sapien pellentesque habitant morbi. A cras semper auctor neque vitae tempus quam pellentesque nec. Et leo duis ut diam quam nulla porttitor. Nec tincidunt praesent semper feugiat nibh sed. Sem viverra aliquet eget sit amet. Sit amet mattis vulputate enim nulla aliquet porttitor lacus luctus.
+When we look around us, we see a huge number of examples of technology. The mobile phone in our hands, the headphones we wear for listening to music, the microwave we use to heat our food, and even the construction of the buildings we live in – all use some or the other type of technology.
 
-Egestas quis ipsum suspendisse ultrices gravida dictum fusce ut. Nunc sed velit dignissim sodales ut eu. Laoreet suspendisse interdum consectetur libero id faucibus nisl tincidunt. Tempus urna et pharetra pharetra massa massa ultricies. Diam vel quam elementum pulvinar etiam non quam lacus. Eget egestas purus viverra accumsan. Diam donec adipiscing tristique risus nec feugiat in fermentum posuere. Viverra mauris in aliquam sem. Dui vivamus arcu felis bibendum ut tristique. Eu consequat ac felis donec et. Eu lobortis elementum nibh tellus molestie nunc non blandit. Malesuada fames ac turpis egestas sed. Maecenas sed enim ut sem viverra aliquet. Ipsum dolor sit amet consectetur adipiscing elit. Adipiscing elit ut aliquam purus. Massa enim nec dui nunc mattis enim ut tellus elementum. At volutpat diam ut venenatis tellus in metus. Id interdum velit laoreet id donec ultrices tincidunt. Sed faucibus turpis in eu.
+Technology is so important in today’s world that it is almost impossible to imagine a life without it. Could you imagine what you would do if you weren’t able to watch television every once? Or what would you do if you were unable to talk to your grandmother who lives away from you on the phone for some time now and then?
 <br></br>
-<h2>🔥Header two example</h2>
-A diam maecenas sed enim ut. Dui sapien eget mi proin. Pretium fusce id velit ut tortor pretium viverra suspendisse potenti. Lobortis elementum nibh tellus molestie. Purus viverra accumsan in nisl nisi scelerisque eu. Amet consectetur adipiscing elit ut aliquam purus sit amet. Pellentesque pulvinar pellentesque habitant morbi tristique senectus et netus et. Et netus et malesuada fames. Ut eu sem integer vitae. Nisl purus in mollis nunc sed id.
+Not having technology in our lives would make us feel like something in our lives is missing. Yes, that’s how big a role technology plays in our lives if we think deeply about it.
+
+One of the best and most accessible forms of technology is the mobile phone or, more precisely, the smartphone. A smartphone is a phone which can connect to the internet. They have many advanced features in a phone and are a very good example of technology.
 <br></br>
 <br></br>
 <br></br>
