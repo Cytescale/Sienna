@@ -7,8 +7,12 @@ import {
   getDefaultKeyBinding,
 } from "draft-js";
 import { toContinueBlocks, HeaderBlocks } from "../constants";
-import { skipEntityBackspace } from "./utils";
-import { insertDivider, insertProperBlock } from "../commands";
+import {
+  afterWholeBlockSelected,
+  skipEntityBackspace,
+  wholeBlockSelected,
+} from "./utils";
+import { insertDivider, insertProperBlock, insertNewBlock } from "../commands";
 import { MenuButtonInd } from "../menus/elementMenu";
 import { SelectionState } from "draft-js";
 import { removeBlockTypes } from "./utils";
@@ -22,7 +26,7 @@ export function ReturnHandler(
   const editorState = eState;
   const currBlockType = RichUtils.getCurrentBlockType(editorState);
   const isContinousBlock = toContinueBlocks.indexOf(currBlockType) > -1;
-  const isAtStart = editorState.getSelection().getFocusOffset() === 0;
+  const isAtStart = editorState.getSelection().getAnchorOffset() === 0;
 
   if (e.shiftKey) {
     const newEditorState = RichUtils.insertSoftNewline(editorState);
@@ -57,6 +61,21 @@ export function ReturnHandler(
 
     editorStateChange(insertProperBlock(type, newEs));
     editorAdderMenuObject.setVisi(false);
+  } else if (afterWholeBlockSelected(editorState)) {
+    let eState = editorState;
+    let curr_selec = eState.getSelection();
+    let newEs = EditorState.push(
+      eState,
+      Modifier.removeRange(
+        editorState.getCurrentContent(),
+        curr_selec,
+        "backward"
+      ),
+      "remove-text"
+    );
+    newEs = insertNewBlock(newEs);
+    editorStateChange(newEs);
+    return "handled";
   } else {
     const currentContent = editorState.getCurrentContent();
     const selection = editorState.getSelection();
@@ -65,7 +84,7 @@ export function ReturnHandler(
     if (!isContinousBlock && !isAtStart) {
       nState = RichUtils.toggleBlockType(nState, "unstyled");
     }
-    if (isAtStart) {
+    if (isAtStart && editorState.getSelection().isCollapsed()) {
       const currSelc = nState.getSelection();
       const befselc = nState.getCurrentContent().getSelectionBefore();
       nState = EditorState.forceSelection(nState, befselc);
@@ -114,7 +133,7 @@ const backspaceHandler = (eState, editorStateChange) => {
         return "handled";
       }
     } catch (e) {
-     //  console.log(e);
+      //  console.log(e);
     }
   }
   return "not-handled";

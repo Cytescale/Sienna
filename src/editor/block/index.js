@@ -108,6 +108,7 @@ export function BlockRenderer(
         },
       };
     case "unstyled":
+      // console.log(contentBlock);
       return {
         component: UnstyledBlockRender,
         editable: true,

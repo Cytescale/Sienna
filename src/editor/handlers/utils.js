@@ -93,3 +93,37 @@ export const removeBlockTypes = (editorState) => {
 
   return newEditorState;
 };
+
+export const wholeBlockSelected = (editorState) => {
+  let edtState = editorState;
+  const selecState = edtState.getSelection();
+  const block = edtState
+    .getCurrentContent()
+    .getBlockAfter(selecState.getAnchorKey());
+  if (block) {
+    if (
+      selecState.getFocusKey() === block.key &&
+      selecState.getFocusOffset() === 0 &&
+      selecState.getAnchorOffset() === 0
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
+export const afterWholeBlockSelected = (editorState) => {
+  let edtState = editorState;
+  const selecState = edtState.getSelection();
+  const curr_block = edtState
+    .getCurrentContent()
+    .getBlockForKey(selecState.getAnchorKey());
+  if (
+    selecState.getFocusKey() === selecState.getAnchorKey() &&
+    selecState.getFocusOffset() === curr_block.getLength() &&
+    selecState.getAnchorOffset() === 0
+  ) {
+    return true;
+  }
+  return false;
+};

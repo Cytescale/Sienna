@@ -27,7 +27,11 @@ import ElementAdderMenu from "./menus/elementMenu";
 import TextEditorMenu from "./menus/textEditorMenu";
 import { BlockRenderer, extendedBlockRenderMap } from "./block";
 import { ReturnHandler, KeyCommandHandler, KeyBinderHandle } from "./handlers";
-import { getUpperInsertableBlock, skipEntityBackspace } from "./handlers/utils";
+import {
+  getUpperInsertableBlock,
+  skipEntityBackspace,
+  wholeBlockSelected,
+} from "./handlers/utils";
 import { EditorMode, EditorLockState, EditorMenuState } from "./constants";
 import { lockScroll } from "./handlers/utils";
 
@@ -158,6 +162,24 @@ export default class SiennaEditor extends react.Component {
   }
   componentWillUnmount() {}
 
+  selectionCorrection(editorState) {
+    let edtState = editorState;
+    const selecState = edtState.getSelection();
+    const curr_block = edtState
+      .getCurrentContent()
+      .getBlockForKey(selecState.getAnchorKey());
+    if (wholeBlockSelected(edtState)) {
+      let newSelecState = selecState;
+      newSelecState = newSelecState.merge({
+        focusKey: selecState.getAnchorKey(),
+        focusOffset: curr_block.getLength(),
+      });
+      let nState = EditorState.forceSelection(edtState, newSelecState);
+      return nState;
+    }
+    return edtState;
+  }
+
   async EditorTextMenuVisiDetermine(edtState) {
     const selc = edtState.getSelection();
     if (selc.getAnchorKey() !== undefined && selc.getFocusKey() !== undefined) {
@@ -180,6 +202,7 @@ export default class SiennaEditor extends react.Component {
   }
 
   async editorStateChage(edtState) {
+    edtState = this.selectionCorrection(edtState);
     this.EditorTextMenuVisiDetermine(edtState);
     this.setState({ editorState: edtState });
   }
