@@ -127,3 +127,21 @@ export const afterWholeBlockSelected = (editorState) => {
   }
   return false;
 };
+
+export const selectionCorrection = (editorState) => {
+  let edtState = editorState;
+  const selecState = edtState.getSelection();
+  const curr_block = edtState
+    .getCurrentContent()
+    .getBlockForKey(selecState.getAnchorKey());
+  if (wholeBlockSelected(edtState)) {
+    let newSelecState = selecState;
+    newSelecState = newSelecState.merge({
+      focusKey: selecState.getAnchorKey(),
+      focusOffset: curr_block.getLength(),
+    });
+    let nState = EditorState.forceSelection(edtState, newSelecState);
+    return nState;
+  }
+  return edtState;
+};

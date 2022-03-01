@@ -94,7 +94,7 @@ body::-webkit-scrollbar-thumb {
 
 .sienna-editor-block-wrapper {
   width: 50%;
-  min-width: 500px;
+  min-width: 700px;
   max-width: 59%;
   /* background-color: red; */
   /* display: flex;
@@ -114,12 +114,15 @@ body::-webkit-scrollbar-thumb {
   /* margin-top: var(--block-space);
      margin-bottom: var(--block-space); */
   outline: none;
-
+  padding-left: 102px;
   display: inline-flex;
-  justify-content: center;
+  /* justify-content: center; */
   overflow: visible;
   caret-color: #fff;
   /* background-color: green; */
+}
+
+.sienna-editor-master-wrapper:hover {
 }
 
 .sienna-editor-block-wrapper-butt-cont {

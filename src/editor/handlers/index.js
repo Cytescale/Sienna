@@ -40,13 +40,14 @@ export function ReturnHandler(
     if (newEditorState !== editorState) {
       editorStateChange(newEditorState);
     }
-  } else if (editorAdderMenuObject.visi) {
-    let ind = editorAdderMenuObject.adderMenuMouseInd
-      ? editorAdderMenuObject.adderMenuMouseInd
-      : editorAdderMenuObject.adderInd;
+  } else if (editorAdderMenuObject.blockAdderState.getMenuVisi()) {
+    let ind = editorAdderMenuObject.blockAdderState.getMouseInd()
+      ? editorAdderMenuObject.blockAdderState.getMouseInd()
+      : editorAdderMenuObject.blockAdderState.getArrowInd();
     let type = MenuButtonInd[ind].id;
 
-    const prev_selec = editorAdderMenuObject.prevSelecState;
+    const prev_selec =
+      editorAdderMenuObject.blockAdderState.getPrevSelecState();
     const curr_selec = eState.getSelection();
     const empty_selec = SelectionState.createEmpty(
       eState.getCurrentContent().getBlockForKey(curr_selec.getFocusKey()).key
@@ -198,24 +199,50 @@ export function KeyCommandHandler(
   // console.log(command);
   switch (command) {
     case "arrowUp": {
-      let ind = editorAdderMenuObject.adderMenuMouseInd
-        ? editorAdderMenuObject.adderMenuMouseInd
-        : editorAdderMenuObject.adderInd;
-      editorAdderMenuObject.setAdderMenuMouseInd(null);
-      editorAdderMenuObject.setAdderMenuInd(
-        ind - 1 >= 0
-          ? (ind - 1) % MenuButtonInd.length
-          : MenuButtonInd.length - 1
+      // let ind = editorAdderMenuObject.adderMenuMouseInd
+      //   ? editorAdderMenuObject.adderMenuMouseInd
+      //   : editorAdderMenuObject.adderInd;
+      // editorAdderMenuObject.setAdderMenuMouseInd(null);
+      // editorAdderMenuObject.setAdderMenuInd(
+      //   ind - 1 >= 0
+      //     ? (ind - 1) % MenuButtonInd.length
+      //     : MenuButtonInd.length - 1
+      // );
+      let ind = editorAdderMenuObject.blockAdderState.getMouseInd()
+        ? editorAdderMenuObject.blockAdderState.getMouseInd()
+        : editorAdderMenuObject.blockAdderState.getArrowInd();
+      editorAdderMenuObject.blockAdderStateChange(
+        editorAdderMenuObject.blockAdderState.setMouseInd(null)
+      );
+      editorAdderMenuObject.blockAdderStateChange(
+        editorAdderMenuObject.blockAdderState.setArrowInd(
+          ind - 1 >= 0
+            ? (ind - 1) % MenuButtonInd.length
+            : MenuButtonInd.length - 1
+        )
       );
 
       break;
     }
     case "arrowDown": {
-      let ind = editorAdderMenuObject.adderMenuMouseInd
-        ? editorAdderMenuObject.adderMenuMouseInd
-        : editorAdderMenuObject.adderInd;
-      editorAdderMenuObject.setAdderMenuMouseInd(null);
-      editorAdderMenuObject.setAdderMenuInd((ind + 1) % MenuButtonInd.length);
+      // let ind = editorAdderMenuObject.adderMenuMouseInd
+      //   ? editorAdderMenuObject.adderMenuMouseInd
+      //   : editorAdderMenuObject.adderInd;
+      // editorAdderMenuObject.setAdderMenuMouseInd(null);
+      // editorAdderMenuObject.setAdderMenuInd((ind + 1) % MenuButtonInd.length);
+      let ind = editorAdderMenuObject.blockAdderState.getMouseInd()
+        ? editorAdderMenuObject.blockAdderState.getMouseInd()
+        : editorAdderMenuObject.blockAdderState.getArrowInd();
+      editorAdderMenuObject.blockAdderStateChange(
+        editorAdderMenuObject.blockAdderState.setMouseInd(null)
+      );
+      editorAdderMenuObject.blockAdderStateChange(
+        editorAdderMenuObject.blockAdderState.setArrowInd(
+          ind + 1 <= MenuButtonInd.length
+            ? (ind + 1) % MenuButtonInd.length
+            : MenuButtonInd.length - 1
+        )
+      );
       break;
     }
     case "backspace": {
@@ -246,13 +273,13 @@ export function KeyBinderHandle(e, editorAdderMenuObject) {
       return;
     }
     case 38: {
-      if (editorAdderMenuObject.visi) {
+      if (editorAdderMenuObject.blockAdderState.getMenuVisi()) {
         return "arrowUp";
       }
       return;
     }
     case 40: {
-      if (editorAdderMenuObject.visi) {
+      if (editorAdderMenuObject.blockAdderState.getMenuVisi()) {
         return "arrowDown";
       }
       return;

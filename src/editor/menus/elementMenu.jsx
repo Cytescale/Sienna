@@ -270,13 +270,16 @@ const ElementAdderMenu = (props) => {
   const [exit_anim, setexit_anim] = useState(false);
   const [curr_visi, setcurr_visi] = useState(false);
   const [selectedButtonInd, setselectedButtonInd] = useState(
-    props.editorAdderMenuObject.adderInd
+    props.editorAdderMenuObject.blockAdderState.getArrowInd()
   );
   const [finX, setfinX] = useState(0);
   const [finY, setfinY] = useState(0);
 
   useEffect(() => {
-    if (props.visi && !entry_anim) {
+    if (
+      props.editorAdderMenuObject.blockAdderState.getMenuVisi() &&
+      !entry_anim
+    ) {
       setentry_anim(true);
       setcurr_visi(true);
       const selection = window.getSelection();
@@ -342,11 +345,16 @@ const ElementAdderMenu = (props) => {
       setfinY(spwn_y);
       // adderMenuRef.current.focus();
       // adderMenuRef.current.scrollIntoView()
-    } else if (!props.visi && !exit_anim && curr_visi) {
+    } else if (
+      !props.editorAdderMenuObject.blockAdderState.getMenuVisi() &&
+      !exit_anim &&
+      curr_visi
+    ) {
       setentry_anim(false);
       setexit_anim(true);
     }
-  }, [props.visi]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.editorAdderMenuObject.blockAdderState.getMenuVisi()]);
 
   useEffect(() => {
     let selc_elem = document.getElementsByClassName(`
@@ -362,7 +370,7 @@ const ElementAdderMenu = (props) => {
       adderMenuRef.current.scrollTop = finScroll;
       // console.log(adderMenuRef.current.scrollTop,adderMenuRef.current.scrollTop);
     }
-  }, [props.editorAdderMenuObject.adderInd]);
+  }, [props.editorAdderMenuObject.blockAdderState.getArrowInd()]);
 
   return (
     <div
@@ -393,7 +401,7 @@ const ElementAdderMenu = (props) => {
         <button
           className="element_adder_menu_close_butt"
           onClick={() => {
-            props.triggerExist(false);
+            props.editorAdderMenuObject.setVisi(false);
           }}
         >
           <svg
@@ -415,7 +423,8 @@ const ElementAdderMenu = (props) => {
             <button
               onClick={(e) => {
                 let type = MenuButtonInd[ind].id;
-                const prev_selec = props.editorAdderMenuObject.prevSelecState;
+                const prev_selec =
+                  props.editorAdderMenuObject.blockAdderState.getPrevSelecState();
                 const curr_selec = props.editorState.getSelection();
                 let empty_selec = SelectionState.createEmpty(
                   props.editorState
@@ -441,16 +450,23 @@ const ElementAdderMenu = (props) => {
                 props.editorAdderMenuObject.setVisi(false);
               }}
               onMouseEnter={() => {
-                props.editorAdderMenuObject.setAdderMenuInd(null);
-                props.editorAdderMenuObject.setAdderMenuMouseInd(ind);
+                // props.editorAdderMenuObject.setAdderMenuInd(null);
+                // props.editorAdderMenuObject.setAdderMenuMouseInd(ind);
+                let prevblockAdderState =
+                  props.editorAdderMenuObject.blockAdderState;
+                prevblockAdderState.setArrowInd(ind);
+                prevblockAdderState.setMouseInd(null);
+                props.editorAdderMenuObject.blockAdderStateChange(
+                  prevblockAdderState
+                );
               }}
               className={`
                                         element_adder_menu_butt
                                         ${
-                                          props.editorAdderMenuObject
-                                            .adderInd === ind ||
-                                          props.editorAdderMenuObject
-                                            .adderMenuMouseInd === ind
+                                          props.editorAdderMenuObject.blockAdderState.getArrowInd() ===
+                                            ind ||
+                                          props.editorAdderMenuObject.blockAdderState.getMouseInd() ===
+                                            ind
                                             ? "element_adder_menu_butt_selected"
                                             : ""
                                         }

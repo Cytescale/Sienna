@@ -1,75 +1,43 @@
 /** @format */
 
-import react, { useState, useEffect } from "react";
+import react from "react";
 import template_page_code from "./templatePage";
-import axios from "axios";
-import {
-  Editor,
-  EditorState,
-  EditorBlock,
-  RichUtils,
-  convertFromHTML,
-  ContentState,
-  Draft,
-  DefaultDraftBlockRenderMap,
-  convertToRaw,
-  getDefaultKeyBinding,
-  KeyBindingUtil,
-  EditorChangeType,
-  Modifier,
-  AtomicBlockUtils,
-  removeTextWithStrategy,
-  ContentBlock,
-  genKey,
-  SelectionState,
-} from "draft-js";
+import { Editor, EditorState, convertFromHTML, ContentState } from "draft-js";
 import ElementAdderMenu from "./menus/elementMenu";
 import TextEditorMenu from "./menus/textEditorMenu";
 import { BlockRenderer, extendedBlockRenderMap } from "./block";
 import { ReturnHandler, KeyCommandHandler, KeyBinderHandle } from "./handlers";
-import {
-  getUpperInsertableBlock,
-  skipEntityBackspace,
-  wholeBlockSelected,
-} from "./handlers/utils";
+import { selectionCorrection } from "./handlers/utils";
 import { EditorMode, EditorLockState, EditorMenuState } from "./constants";
 import { lockScroll } from "./handlers/utils";
+import BlockAdderState from "./component/blockAdderMenu";
 
 export default class SiennaEditor extends react.Component {
   CURRENT_LOCK_STATE = EditorLockState.LOCKED;
-  CURRENT_EDITOR_MENU_STATE = EditorMenuState.NONE;
+
   constructor(props) {
     super(props);
     const blocksFromHTML = convertFromHTML(template_page_code);
+
     const state = ContentState.createFromBlockArray(
       blocksFromHTML.contentBlocks,
       blocksFromHTML.entityMap
     );
+
     this.state = {
       editorState: EditorState.createWithContent(state),
-      elementAdderVisi: false,
-      adderMenuInd: 0,
-      adderMenuMouseInd: 0,
-      adderMenuPrevSelec: null,
+      BlockAdderState: new BlockAdderState(),
       CURRENT_EDITOR_MODE: EditorMode.BLURRED,
       textEditorVisi: false,
     };
     this.setDomEditorRef = (ref) => (this.domEditor = ref);
     this.setCurrentLockState = async (State) => {
-      // this.setState({ CURRENT_LOCK_STATE: State });
       this.CURRENT_LOCK_STATE = State;
     };
     this.setEditorMode = async (mode) => {
       this.setState({ CURRENT_EDITOR_MODE: mode });
-      // this.CURRENT_EDITOR_MODE = mode;
-    };
-    this.setEditorMenuState = async (state) => {
-      // this.setState({ CURRENT_EDITOR_MENU_STATE: state });
-      this.CURRENT_EDITOR_MENU_STATE = state;
     };
 
-    this.EditorTextMenuVisiDetermine =
-      this.EditorTextMenuVisiDetermine.bind(this);
     this.editorStateChage = this.editorStateChage.bind(this);
     this.setTextEditorVisi = this.setTextEditorVisi.bind(this);
     this.setElementAdderVisi = this.setElementAdderVisi.bind(this);
@@ -78,58 +46,36 @@ export default class SiennaEditor extends react.Component {
     this.EditorfocusHandle = this.EditorfocusHandle.bind(this);
     this.rootFocusHandle = this.rootFocusHandle.bind(this);
     this.closeAllMenus = this.closeAllMenus.bind(this);
-    this.setAdderMenuInd = this.setAdderMenuInd.bind(this);
-    this.setAdderMenuMouseInd = this.setAdderMenuMouseInd.bind(this);
-    this.setAdderMenuPrevSelec = this.setAdderMenuPrevSelec.bind(this);
-  }
-  setAdderMenuPrevSelec(selec) {
-    this.setState({ adderMenuPrevSelec: selec });
-  }
-  setAdderMenuInd(int) {
-    this.setState({ adderMenuInd: int });
-  }
-  setAdderMenuMouseInd(int) {
-    this.setState({ adderMenuMouseInd: int });
+    this.BlockAdderStateChange = this.BlockAdderStateChange.bind(this);
+    this.setBlockAdderState = this.setBlockAdderState.bind(this);
+    this.EditorTextMenuVisiDetermine =
+      this.EditorTextMenuVisiDetermine.bind(this);
   }
 
-  async setPrevBlockData() {
-    let selection_state = this.state.editorState.getSelection();
-    this.setAdderMenuPrevSelec(selection_state);
+  setBlockAdderState(blockadderstate) {
+    this.setState({ BlockAdderState: blockadderstate });
   }
 
   async setElementAdderVisi(visi) {
-    this.setPrevBlockData();
-    if (visi === true) {
-      lockScroll(true);
-      await this.setEditorMenuState(EditorMenuState.ADDER_MENU);
-    } else {
-      lockScroll(false);
-      await this.setEditorMenuState(EditorMenuState.NONE);
-    }
-
-    this.setState({ elementAdderVisi: visi });
+    lockScroll(visi ? true : false);
+    let prevBlockAdderState = this.state.BlockAdderState.getState();
+    prevBlockAdderState.setPrevSelecState(
+      this.state.editorState.getSelection()
+    );
+    prevBlockAdderState.setMenuVisi(visi);
+    this.setBlockAdderState(prevBlockAdderState);
   }
 
   toggelAdderMenu() {
-    this.setPrevBlockData();
-    if (!this.state.elementAdderVisi) {
-      this.setElementAdderVisi(true).then(() => {
-        //    this.domEditor.focus();
-      });
-    } else {
-      this.setElementAdderVisi(false).then(() => {
-        //    this.domEditor.focus();
-      });
-    }
+    let prevBlockAdderState = this.state.BlockAdderState.getState();
+    prevBlockAdderState.setPrevSelecState(
+      this.state.editorState.getSelection()
+    );
+    prevBlockAdderState.setMenuVisi(!prevBlockAdderState.getMenuVisi());
+    this.setBlockAdderState(prevBlockAdderState);
   }
 
   setTextEditorVisi(visi) {
-    if (visi === true) {
-      this.setEditorMenuState(EditorMenuState.TEXT_EDITOR_MENU);
-    } else {
-      this.setEditorMenuState(EditorMenuState.NONE);
-    }
-
     this.setState({ textEditorVisi: visi });
   }
 
@@ -145,11 +91,9 @@ export default class SiennaEditor extends react.Component {
   }
 
   async EditorfocusHandle(e) {
-    //     console.log("focus entered");
     await this.setEditorMode(EditorMode.FOCUSED);
   }
   async EditorblurHandle(e) {
-    //     console.log("focus lost	");
     this.closeAllMenus();
     await this.setEditorMode(EditorMode.BLURRED);
   }
@@ -157,28 +101,9 @@ export default class SiennaEditor extends react.Component {
   componentDidMount() {
     this.domEditor.focus();
     this.setEditorMode(EditorMode.FOCUSED);
-    this.setEditorMenuState(EditorMenuState.NONE);
     this.setCurrentLockState(EditorLockState.UNLOCKED);
   }
   componentWillUnmount() {}
-
-  selectionCorrection(editorState) {
-    let edtState = editorState;
-    const selecState = edtState.getSelection();
-    const curr_block = edtState
-      .getCurrentContent()
-      .getBlockForKey(selecState.getAnchorKey());
-    if (wholeBlockSelected(edtState)) {
-      let newSelecState = selecState;
-      newSelecState = newSelecState.merge({
-        focusKey: selecState.getAnchorKey(),
-        focusOffset: curr_block.getLength(),
-      });
-      let nState = EditorState.forceSelection(edtState, newSelecState);
-      return nState;
-    }
-    return edtState;
-  }
 
   async EditorTextMenuVisiDetermine(edtState) {
     const selc = edtState.getSelection();
@@ -201,8 +126,12 @@ export default class SiennaEditor extends react.Component {
     }
   }
 
-  async editorStateChage(edtState) {
-    edtState = this.selectionCorrection(edtState);
+  BlockAdderStateChange(blockadderstate) {
+    this.setState({ BlockAdderState: blockadderstate });
+  }
+
+  editorStateChage(edtState) {
+    edtState = selectionCorrection(edtState);
     this.EditorTextMenuVisiDetermine(edtState);
     this.setState({ editorState: edtState });
   }
@@ -212,18 +141,14 @@ export default class SiennaEditor extends react.Component {
       current_editor_mode: this.state.CURRENT_EDITOR_MODE,
       set_editor_mode: this.setEditorMode,
     };
+
     let editorAdderMenuObject = {
-      visi: this.state.elementAdderVisi,
+      blockAdderState: this.state.BlockAdderState,
+      blockAdderStateChange: this.BlockAdderStateChange,
       setVisi: this.setElementAdderVisi,
-      adderInd: this.state.adderMenuInd,
-      adderMenuMouseInd: this.state.adderMenuMouseInd,
-      setAdderMenuMouseInd: this.setAdderMenuMouseInd,
-      setAdderMenuInd: this.setAdderMenuInd,
       closeAllMenus: this.closeAllMenus,
       toggleAdderMenu: this.toggelAdderMenu,
-      prevSelecState: this.state.adderMenuPrevSelec,
     };
-
     return (
       <div className="sienna-editor-main-cont" onFocus={this.rootFocusHandle}>
         <Editor
@@ -231,9 +156,6 @@ export default class SiennaEditor extends react.Component {
           readOnly={
             this.CURRENT_LOCK_STATE === EditorLockState.LOCKED ? true : false
           }
-          onClick={(e) => {
-            console.log("rpe");
-          }}
           placeholder="Type anything here"
           className="sienna-editor-root"
           editorState={this.state.editorState}
@@ -271,21 +193,17 @@ export default class SiennaEditor extends react.Component {
           onBlur={this.EditorblurHandle}
         />
         <ElementAdderMenu
-          visi={this.state.elementAdderVisi}
-          triggerExist={this.setElementAdderVisi}
-          editor_ref={this.domEditor}
-          focusObject={this.focusObject}
           editorState={this.state.editorState}
           editorStateChange={this.editorStateChage}
           editorAdderMenuObject={editorAdderMenuObject}
         />
-        <TextEditorMenu
+        {/* <TextEditorMenu
           visi={this.state.textEditorVisi}
           ind={this.state.adderMenuInd}
           domEditor={this.domEditor}
           editorStateChage={this.editorStateChage}
           editorState={this.state.editorState}
-        />
+        /> */}
       </div>
     );
   }

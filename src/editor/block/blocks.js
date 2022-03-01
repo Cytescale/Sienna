@@ -133,29 +133,25 @@ function BlockWrapper(props) {
                 props.block.getKey()
               );
               if (props.blockProps.children.length > 0) {
-                props.blockProps
-                  .editorStateChage(
-                    insertNewBlock(
-                      EditorState.forceSelection(
-                        props.blockProps.editorState,
-                        chngeSelec
-                      )
-                    )
-                  )
-                  .then(() => {
-                    props.blockProps.toggelAdderMenu();
-                  });
-              } else {
-                props.blockProps
-                  .editorStateChage(
+                props.blockProps.editorStateChage(
+                  insertNewBlock(
                     EditorState.forceSelection(
                       props.blockProps.editorState,
                       chngeSelec
                     )
                   )
-                  .then(() => {
-                    props.blockProps.toggelAdderMenu();
-                  });
+                );
+                //toggle adder menu here
+                // props.blockProps.toggelAdderMenu();
+              } else {
+                props.blockProps.editorStateChage(
+                  EditorState.forceSelection(
+                    props.blockProps.editorState,
+                    chngeSelec
+                  )
+                );
+                //toggle adder menu here
+                // props.blockProps.toggelAdderMenu();
               }
             }}
           >
