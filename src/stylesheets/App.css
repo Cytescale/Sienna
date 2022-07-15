@@ -62,11 +62,24 @@ body::-webkit-scrollbar-thumb {
   color: #fcfdff;
   font-size: 15px;
   letter-spacing: 0.12px;
-  font-weight: 400;
-  border-radius: 5px;
   outline: none;
   padding-top: 92px;
-  /* background-color: red; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sienna-editor-block-wrapper {
+  width: 50%;
+  min-width: 50%;
+  max-width: 50%;
+
+  /* display: flex;
+     align-items: center;
+     justify-content: start; */
+
+  position: relative;
+  overflow: visible;
 }
 
 ::selection {
@@ -90,20 +103,6 @@ body::-webkit-scrollbar-thumb {
   color: #717883;
   outline: none;
   border: none;
-}
-
-.sienna-editor-block-wrapper {
-  width: 50%;
-  min-width: 700px;
-  max-width: 59%;
-  /* background-color: red; */
-  /* display: flex;
-     align-items: center;
-     justify-content: start; */
-
-  position: relative;
-  overflow: visible;
-  /* background-color: red; */
 }
 
 .sienna-editor-master-wrapper {
